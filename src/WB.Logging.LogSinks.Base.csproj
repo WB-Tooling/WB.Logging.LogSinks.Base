@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ Documentation                                                        │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <PropertyGroup>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ Analyzer Settings                                                    │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WB.CodeAnalyzer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ Documentation                                                        │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ SourceLink                                                           │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <ItemGroup> 
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <EnableSourceLink>false</EnableSourceLink>
+    <PublishRepositoryUrl>false</PublishRepositoryUrl>
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ Package References                                                   │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <ItemGroup Condition="'$(SourceBuild)' != 'true'">
+    <PackageReference Include="WB.Logging.Base" />
+  </ItemGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ Project References                                                   │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <ItemGroup Condition="'$(SourceBuild)' == 'true'">
+    <ProjectReference Include="$(LocalProjectDependencies)WB.Logging.Base/src/WB.Logging.Base.csproj" />
+  </ItemGroup>
+
+</Project>

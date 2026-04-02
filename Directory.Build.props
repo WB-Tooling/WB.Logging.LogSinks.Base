@@ -1,0 +1,79 @@
+<Project>
+    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+         │ Target Framework                                                     │
+         ╰──────────────────────────────────────────────────────────────────────╯ -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+    </PropertyGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ Package Info.                                                        │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <PropertyGroup>
+    <Authors>{{Author}}</Authors>
+    <Description>{{Description}}</Description>
+    <PackageTags>{{Tags}}</PackageTags>
+    <PackageProjectUrl>{{ProjectUrl}}</PackageProjectUrl>
+    <RepositoryUrl>{{RepositoryUrl}}</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+         │ Version                                                              │
+         ╰──────────────────────────────────────────────────────────────────────╯ -->
+    <PropertyGroup>
+        <Version>1.0.0</Version>
+    </PropertyGroup>
+
+    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+         │ Deterministic Builds                                                 │
+         ╰──────────────────────────────────────────────────────────────────────╯ -->
+    <PropertyGroup>
+        <Deterministic>true</Deterministic>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+
+    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+         │ Debug Settings                                                       │
+         ╰──────────────────────────────────────────────────────────────────────╯ -->
+    <PropertyGroup>
+        <DebugType>portable</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+
+    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+         │ Nullability Settings                                                 │
+         ╰──────────────────────────────────────────────────────────────────────╯ -->
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>nullable</WarningsAsErrors>
+    </PropertyGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ README                                                               │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ LICENSE                                                              │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
+       │ Local Project Directory                                                              │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
+  <PropertyGroup>
+    <LocalProjectDependencies>$(MSBuildThisFileDirectory)deps/</LocalProjectDependencies>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+name: Validate Version
+
+on:
+  workflow_call:
+
+jobs:
+  validate-version:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🗃️ Checkout
+      uses: actions/checkout@v4
+
+    - name: 🧐 Checking Project Version
+      id: csproj
+      shell: pwsh
+      run: |
+        $version = .github/workflows/scripts/Check-Version.ps1 -FilePath "Directory.Build.props" -ExpectedVersion $env:GITHUB_REF_NAME
+
+        
