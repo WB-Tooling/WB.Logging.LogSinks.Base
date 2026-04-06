@@ -14,11 +14,11 @@
        │ Package Info.                                                        │
        ╰──────────────────────────────────────────────────────────────────────╯ -->
   <PropertyGroup>
-    <Authors>{{Author}}</Authors>
-    <Description>{{Description}}</Description>
-    <PackageTags>{{Tags}}</PackageTags>
-    <PackageProjectUrl>{{ProjectUrl}}</PackageProjectUrl>
-    <RepositoryUrl>{{RepositoryUrl}}</RepositoryUrl>
+    <Authors>Wolf Bublitz</Authors>
+    <Description>A base lib for logging sinks.</Description>
+    <PackageTags>WB.Logging,LogSinks</PackageTags>
+    <PackageProjectUrl>https://github.com/WolfBublitz/WB.Logging.LogSinks.Base</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/WolfBublitz/WB.Logging.LogSinks.Base</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
