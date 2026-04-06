@@ -35,7 +35,7 @@
        │ SourceLink                                                           │
        ╰──────────────────────────────────────────────────────────────────────╯ -->
   <ItemGroup> 
-    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    <!-- <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" /> -->
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">

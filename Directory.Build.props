@@ -1,10 +1,14 @@
 <Project>
-    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+  <Import
+    Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+    Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
          │ Target Framework                                                     │
          ╰──────────────────────────────────────────────────────────────────────╯ -->
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
 
   <!-- ╭──────────────────────────────────────────────────────────────────────╮
        │ Package Info.                                                        │
@@ -18,38 +22,38 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
-    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
          │ Version                                                              │
          ╰──────────────────────────────────────────────────────────────────────╯ -->
-    <PropertyGroup>
-        <Version>1.0.0</Version>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
 
-    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
          │ Deterministic Builds                                                 │
          ╰──────────────────────────────────────────────────────────────────────╯ -->
-    <PropertyGroup>
-        <Deterministic>true</Deterministic>
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 
-    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
          │ Debug Settings                                                       │
          ╰──────────────────────────────────────────────────────────────────────╯ -->
-    <PropertyGroup>
-        <DebugType>portable</DebugType>
-        <DebugSymbols>true</DebugSymbols>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    </PropertyGroup>
+  <PropertyGroup>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
 
-    <!-- ╭──────────────────────────────────────────────────────────────────────╮
+  <!-- ╭──────────────────────────────────────────────────────────────────────╮
          │ Nullability Settings                                                 │
          ╰──────────────────────────────────────────────────────────────────────╯ -->
-    <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
-        <WarningsAsErrors>nullable</WarningsAsErrors>
-    </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
 
   <!-- ╭──────────────────────────────────────────────────────────────────────╮
        │ README                                                               │
@@ -59,14 +63,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath=""/>
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <!-- ╭──────────────────────────────────────────────────────────────────────╮
        │ LICENSE                                                              │
        ╰──────────────────────────────────────────────────────────────────────╯ -->
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath=""/>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <!-- ╭──────────────────────────────────────────────────────────────────────╮
