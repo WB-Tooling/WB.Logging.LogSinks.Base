@@ -30,25 +30,8 @@
   </PropertyGroup>
 
   <!-- ╭──────────────────────────────────────────────────────────────────────╮
-         │ Deterministic Builds                                                 │
-         ╰──────────────────────────────────────────────────────────────────────╯ -->
-  <PropertyGroup>
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-
-  <!-- ╭──────────────────────────────────────────────────────────────────────╮
-         │ Debug Settings                                                       │
-         ╰──────────────────────────────────────────────────────────────────────╯ -->
-  <PropertyGroup>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup>
-
-  <!-- ╭──────────────────────────────────────────────────────────────────────╮
-         │ Nullability Settings                                                 │
-         ╰──────────────────────────────────────────────────────────────────────╯ -->
+       │ Nullability Settings                                                 │
+       ╰──────────────────────────────────────────────────────────────────────╯ -->
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
