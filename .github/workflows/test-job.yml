@@ -65,7 +65,7 @@ jobs:
               --configuration Release \
               --no-restore \
               -- \
-              --report-trx \ 
+              --report-trx \
               --report-trx-filename ${{ matrix.project.name }}-results.trx \
               --results-directory "${{ matrix.project.workingDirectory }}" \
               /p:SolutionDir="${{ github.workspace }}/"
