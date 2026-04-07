@@ -54,7 +54,7 @@ jobs:
           dotnet-version: ${{ inputs.dotnet-version }}
 
       - name: 🔄 Restore
-        run: dotnet restore "${{ matrix.project.path }}""
+        run: dotnet restore "${{ matrix.project.path }}"
 
       - name: 🏃‍♂️‍➡️ Run Test
         run: dotnet test "${{ matrix.project }}" --logger "trx;LogFileName=test-results.trx"
