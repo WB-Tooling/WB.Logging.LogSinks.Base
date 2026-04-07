@@ -24,11 +24,11 @@ jobs:
         run: |
           projects=$(find . -name "*Tests.csproj" -o -name "*.Test.csproj" -o -name "*.Tests.csproj")
           arr=()
-          for p in $projects; do
-            filename=$(basename "$p")
+          for project in $projects; do
+            filename=$(basename "$project")
             name="${filename%.csproj}"   # remove .csproj
-            working-directory=$(dirname "$p") 
-            items+=("{\"name\":\"$name\",\"path\":\"$p\",\"working-directory\":\"$working-directory\"}")
+            working-directory=$(dirname "$project") 
+            items+=("{\"name\":\"$name\",\"path\":\"$project\",\"working-directory\":\"$working-directory\"}")
           done
 
           json="[$(IFS=,; echo "${items[*]}")]"
