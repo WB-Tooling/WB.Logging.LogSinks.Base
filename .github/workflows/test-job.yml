@@ -27,7 +27,8 @@ jobs:
           for p in $projects; do
             filename=$(basename "$p")
             name="${filename%.csproj}"   # remove .csproj
-            items+=("{\"name\":\"$name\",\"path\":\"$p\"}")
+            working-directory=$(dirname "$p") 
+            items+=("{\"name\":\"$name\",\"path\":\"$p\",\"working-directory\":\"$working-directory\"}")
           done
 
           json="[$(IFS=,; echo "${items[*]}")]"
@@ -57,14 +58,17 @@ jobs:
         run: dotnet restore "${{ matrix.project.path }}"
 
       - name: 🏃‍♂️‍➡️ Run Test
-        run: |
-          mkdir -p test-results
-          dotnet test "${{ matrix.project.path }}" \
-            --logger "trx;LogFileName=${{ matrix.project.name }}.trx" \
-            --results-directory test-results
-      
-      - name: 📤 Upload TRX results
+        run: 
+          |
+            dotnet run "${{ matrix.project.path }}" 
+              --configuration Release 
+              --no-restore 
+              --report-trx 
+              --report-trx-filename ${{ matrix.project.name }}-results.trx
+              --results-directory "${{ matrix.project.working-directory }}"
+
+      - name: 📤 Upload Results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.project.name }}
-          path: test-results
+          name: ${{ matrix.project.name }}-results.trx
+          path: "${{ matrix.project.working-directory }}"
