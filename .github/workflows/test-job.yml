@@ -64,8 +64,8 @@ jobs:
             dotnet run \
               --configuration Release \
               --no-restore \
+              /p:SolutionDir="${{ github.workspace }}/" \
               -- \
-              /p:SolutionDir="${{ github.workspace }}/"
               --report-trx \
               --report-trx-filename ${{ matrix.project.name }}-results.trx \
               --results-directory ${{ matrix.project.workingDirectory }} \
