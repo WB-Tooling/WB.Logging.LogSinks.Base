@@ -47,14 +47,13 @@ TemporaryDependencyNodeTargetIdentifier=net10.0
 /debug:portable
 /filealign:512
 /optimize-
-/pathmap:"<NUGET>/=/_1/,/Users/wolf/Coden/WB.Logging.LogSinks.Base/=/_/,"
 /out:obj/Debug/net10.0/WB.Logging.LogSinks.Base.dll
 /refout:obj/Debug/net10.0/refint/WB.Logging.LogSinks.Base.dll
 /ruleset:<NUGET>/wb.codeanalyzer/1.0.0/build/analysis.ruleset
 /target:library
 /warnaserror-
 /utf8output
-/deterministic+
+/deterministic-
 /langversion:latest
 /warnaserror+:nullable,NU1605,SYSLIB0011
 

@@ -12,8 +12,4 @@
   <Folder Name="/tests/LogSinkBaseTests/src/">
     <Project Path="tests/LogSinkBaseTests/src/LogSinkBaseTests.csproj" />
   </Folder>
-  <Folder Name="/tests/UnitTests/" />
-  <Folder Name="/tests/UnitTests/src/">
-    <Project Path="tests/UnitTests/src/UnitTests.csproj" />
-  </Folder>
 </Solution>
