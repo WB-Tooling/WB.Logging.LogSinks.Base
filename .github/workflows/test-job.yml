@@ -57,4 +57,4 @@ jobs:
         run: dotnet restore "${{ matrix.project.path }}"
 
       - name: 🏃‍♂️‍➡️ Run Test
-        run: dotnet test "${{ matrix.project }}" --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test "${{ matrix.project.path }}" --logger "trx;LogFileName=test-results.trx"
