@@ -67,11 +67,11 @@ jobs:
               /p:SolutionDir="${{ github.workspace }}/" \
               -- \
               --report-trx \
-              --report-trx-filename ${{ matrix.project.name }}-results.trx \
-              --results-directory ${{ matrix.project.workingDirectory }} \
+              --report-trx-filename ${{ matrix.project.name }}.Results.trx \
+              --results-directory ${{ matrix.project.workingDirectory }}
 
       - name: 📤 Upload Results
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.project.name }} Test Results
-          path: "${{ matrix.project.workingDirectory }}/${{ matrix.project.name }}-results.trx"
+          path: "${{ matrix.project.workingDirectory }}/${{ matrix.project.name }}.Results.trx"
