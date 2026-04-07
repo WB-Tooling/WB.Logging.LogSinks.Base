@@ -55,9 +55,11 @@ jobs:
           dotnet-version: ${{ inputs.dotnet-version }}
 
       - name: 🔄 Restore
-        run: dotnet restore "${{ matrix.project.path }}"
+        working-directory: "${{ matrix.project.workingDirectory }}"
+        run: dotnet restore
 
       - name: 🏃‍♂️‍➡️ Run Test
+        working-directory: "${{ matrix.project.workingDirectory }}"
         run: 
           |
             dotnet run "${{ matrix.project.path }}" 
