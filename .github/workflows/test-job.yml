@@ -26,7 +26,8 @@ jobs:
           arr=()
           for p in $projects; do
             filename=$(basename "$p")
-            items+=("{\"name\":\"$filename\",\"path\":\"$p\"}")
+            name="${filename%.csproj}"   # remove .csproj
+            items+=("{\"name\":\"$name\",\"path\":\"$p\"}")
           done
 
           json="[$(IFS=,; echo "${items[*]}")]"
