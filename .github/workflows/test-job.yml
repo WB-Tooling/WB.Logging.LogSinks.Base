@@ -27,8 +27,8 @@ jobs:
           for project in $projects; do
             filename=$(basename "$project")
             name="${filename%.csproj}"   # remove .csproj
-            working-directory=$(dirname "$project") 
-            items+=("{\"name\":\"$name\",\"path\":\"$project\",\"working-directory\":\"$working-directory\"}")
+            workingDirectory=$(dirname "$project") 
+            items+=("{\"name\":\"$name\",\"path\":\"$project\",\"workingDirectory\":\"$workingDirectory\"}")
           done
 
           json="[$(IFS=,; echo "${items[*]}")]"
@@ -65,7 +65,7 @@ jobs:
               --no-restore 
               --report-trx 
               --report-trx-filename ${{ matrix.project.name }}-results.trx
-              --results-directory "${{ matrix.project.working-directory }}"
+              --results-directory "${{ matrix.project.workingDirectory }}"
 
       - name: 📤 Upload Results
         uses: actions/upload-artifact@v4
