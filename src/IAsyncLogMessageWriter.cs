@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace WB.Logging.LogSinks.Base;
 
 /// <summary>
-/// Defines an asynchronous log message writer for <see cref="LogMessage{TPayload}"/> with a specific 
+/// Defines an asynchronous log message writer for <see cref="ILogMessage{TPayload}"/> with a specific 
 /// payload type <typeparamref name="TPayload"/>.
 /// </summary>
 /// <typeparam name="TPayload">The type of the payload of the log messages that this writer can write.</typeparam>
