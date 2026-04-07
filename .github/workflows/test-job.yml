@@ -1,0 +1,60 @@
+on:
+  workflow_call:
+    inputs: 
+      dotnet-version:
+        required: false 
+        type: string
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+    steps:
+      - name: 🗃️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: 🔎 Find all .NET test projects
+        id: discover
+        run: |
+          projects=$(find . -name "*Tests.csproj" -o -name "*.Test.csproj" -o -name "*.Tests.csproj")
+          arr=()
+          for p in $projects; do
+            filename=$(basename "$p")
+            items+=("{\"name\":\"$filename\",\"path\":\"$p\"}")
+          done
+
+          json="[$(IFS=,; echo "${items[*]}")]"
+          
+          echo "Found test projects: $json"
+          echo "matrix={\"project\":$json}" >> $GITHUB_OUTPUT
+
+  run:
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+
+    name: Run tests for ${{ matrix.project }}
+
+    steps:
+      - name: 🗃️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: 🔄 Restore
+        working-directory: src
+        run: dotnet restore "${{ matrix.project.path }}""
+
+      - name: 🏃‍♂️‍➡️ Run Test
+        run: dotnet test "${{ matrix.project }}" --logger "trx;LogFileName=test-results.trx"
