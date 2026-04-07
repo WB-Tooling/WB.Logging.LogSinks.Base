@@ -61,13 +61,13 @@ jobs:
       - name: 🏃‍♂️‍➡️ Run Test
         working-directory: "${{ matrix.project.workingDirectory }}"
         run: |
-            dotnet run
-              --configuration Release 
-              --
-              --no-restore 
-              --report-trx 
-              --report-trx-filename ${{ matrix.project.name }}-results.trx
-              --results-directory "${{ matrix.project.workingDirectory }}"
+            dotnet run \
+              --configuration Release \
+              -- \
+              --no-restore \
+              --report-trx \ 
+              --report-trx-filename ${{ matrix.project.name }}-results.trx \
+              --results-directory "${{ matrix.project.workingDirectory }}" \
               /p:SolutionDir="${{ github.workspace }}/"
 
       - name: 📤 Upload Results
