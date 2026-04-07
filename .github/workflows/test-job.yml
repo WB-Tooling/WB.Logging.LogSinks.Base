@@ -57,4 +57,14 @@ jobs:
         run: dotnet restore "${{ matrix.project.path }}"
 
       - name: 🏃‍♂️‍➡️ Run Test
-        run: dotnet test "${{ matrix.project.path }}" --logger "trx;LogFileName=test-results.trx"
+        run: |
+          mkdir -p test-results
+          dotnet test "${{ matrix.project.path }}" \
+            --logger "trx;LogFileName=${{ matrix.project.name }}.trx" \
+            --results-directory test-results
+      
+      - name: 📤 Upload TRX results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.project.name }}
+          path: test-results
