@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
 
-    name: Run tests for ${{ matrix.project }}
+    name: ${{ matrix.project.name }}
 
     steps:
       - name: 🗃️ Checkout
