@@ -74,4 +74,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.project.name }} Test Results
-          path: "${{ matrix.project.workingDirectory }}/${{ matrix.project.name }}.Results.trx"
+          path: "${{ matrix.project.workingDirectory }}/**/${{ matrix.project.name }}.Results.trx"
