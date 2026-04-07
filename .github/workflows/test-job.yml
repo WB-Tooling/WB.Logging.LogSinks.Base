@@ -67,6 +67,7 @@ jobs:
               --report-trx 
               --report-trx-filename ${{ matrix.project.name }}-results.trx
               --results-directory "${{ matrix.project.workingDirectory }}"
+              /p:SolutionDir="${{ github.workspace }}/"
 
       - name: 📤 Upload Results
         uses: actions/upload-artifact@v4
