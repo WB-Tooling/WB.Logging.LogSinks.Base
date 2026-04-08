@@ -23,6 +23,6 @@ public interface IAsyncLogMessageWriter<TPayload>
     /// <param name="logLevel">The <see cref="LogLevel"/> of the log message.</param>
     /// <param name="senders">The senders of the log message.</param>
     /// <param name="payload">The payload of the log message.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous write operation.</returns>
-    public Task WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, TPayload? payload);
+    /// <returns>A <see cref="ValueTask"/> representing the asynchronous write operation.</returns>
+    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, TPayload? payload);
 }
