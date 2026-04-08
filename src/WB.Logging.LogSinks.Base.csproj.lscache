@@ -59,6 +59,7 @@ TemporaryDependencyNodeTargetIdentifier=net10.0
 
 [sourceFiles]
 Assembly.cs
+AsyncLogSinkBase.cs
 DelegateDisposable.cs
 IAsyncLogMessageWriter.cs
 ILogMessageWriter{TPayload}.cs
@@ -251,6 +252,7 @@ obj/Debug/net10.0/
  Microsoft.CodeAnalysis.NetAnalyzers.dll
 
 [analyzerConfigFiles]
+../.editorconfig
 <DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_all.globalconfig
 obj/Debug/net10.0/WB.Logging.LogSinks.Base.GeneratedMSBuildEditorConfig.editorconfig
 
