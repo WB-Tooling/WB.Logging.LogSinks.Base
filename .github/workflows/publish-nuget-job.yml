@@ -37,4 +37,4 @@ jobs:
         working-directory: src
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
-        run: dotnet nuget push ${{ github.event.repository.name }}.${{ github.ref_name }}.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ${{ github.event.repository.name }}.*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
