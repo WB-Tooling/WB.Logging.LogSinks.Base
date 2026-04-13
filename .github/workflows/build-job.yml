@@ -10,6 +10,10 @@ on:
         required: false
         type: boolean
         default: false
+      create-nuget-package:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -34,11 +38,11 @@ jobs:
 
     - name: 📦 Pack
       run: dotnet pack --configuration Release --no-build -o .
-      if: ${{ inputs.use-local-projects == 'false' }}
+      if: ${{ inputs.create-nuget-package == 'true' }}
 
     - name: ⬆️ Upload package artifact
       uses: actions/upload-artifact@v4
-      if: ${{ inputs.use-local-projects == 'false' }}
+      if: ${{ inputs.create-nuget-package == 'true' }}
       with:
         name: nuget-package
         path: "*.nupkg"

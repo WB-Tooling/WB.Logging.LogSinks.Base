@@ -23,6 +23,7 @@ jobs:
     with:
       dotnet-version: '10.0.x'
       use-local-projects: false
+      create-nuget-package: true
 
   build-against-sources:
     name: 🏗️ Build Against Sources
@@ -30,6 +31,7 @@ jobs:
     with:
       dotnet-version: '10.0.x'
       use-local-projects: true
+      create-nuget-package: false
 
   test:
     name: ✅ Run Tests
