@@ -37,12 +37,15 @@ jobs:
           dotnet-version: ${{ inputs.dotnet-version }}
 
       - name: 🔄 Restore
+        working-directory: src
         run: dotnet restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
 
       - name: 🏗️ Build
+        working-directory: src
         run: dotnet build --configuration Release --no-restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
 
       - name: 📦 Pack
+        working-directory: src
         run: dotnet pack --configuration Release --no-build -o .
         if: ${{ inputs.create-nuget-package }}
 
@@ -51,4 +54,4 @@ jobs:
         if: ${{ inputs.create-nuget-package }}
         with:
           name: nuget-package
-          path: "*.nupkg"
+          path: "src/*.nupkg"
