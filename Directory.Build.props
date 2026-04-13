@@ -60,7 +60,7 @@
        │ Local Project Directory                                                              │
        ╰──────────────────────────────────────────────────────────────────────╯ -->
   <PropertyGroup>
-    <LocalProjectDependencies>$(MSBuildThisFileDirectory)../</LocalProjectDependencies>
+    <PathToLocalProjects>$(MSBuildThisFileDirectory)../</PathToLocalProjects>
   </PropertyGroup>
 
 </Project>
