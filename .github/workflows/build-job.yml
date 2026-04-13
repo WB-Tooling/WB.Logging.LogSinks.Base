@@ -38,11 +38,11 @@ jobs:
 
     - name: 📦 Pack
       run: dotnet pack --configuration Release --no-build -o .
-      if: ${{ inputs.create-nuget-package == 'true' }}
+      if: ${{ inputs.create-nuget-package }}
 
     - name: ⬆️ Upload package artifact
       uses: actions/upload-artifact@v4
-      if: ${{ inputs.create-nuget-package == 'true' }}
+      if: ${{ inputs.create-nuget-package }}
       with:
         name: nuget-package
         path: "*.nupkg"
