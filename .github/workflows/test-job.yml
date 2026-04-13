@@ -16,6 +16,11 @@ jobs:
       matrix: ${{ steps.discover.outputs.matrix }}
 
     steps:
+      - name: Inputs
+        run: |
+          echo "dotnet-version = ${{ inputs.dotnet-version }}"
+          echo "use-local-projects = ${{ inputs.use-local-projects }}"
+
       - name: 🗃️ Checkout
         uses: actions/checkout@v4
 

@@ -20,35 +20,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Debug inputs
-      run: |
-        echo "dotnet-version = ${{ inputs.dotnet-version }}"
-        echo "use-local-projects = ${{ inputs.use-local-projects }}"
-        echo "create-nuget-package = ${{ inputs.create-nuget-package }}"
+      - name: Inputs
+        run: |
+          echo "dotnet-version = ${{ inputs.dotnet-version }}"
+          echo "use-local-projects = ${{ inputs.use-local-projects }}"
+          echo "create-nuget-package = ${{ inputs.create-nuget-package }}"
 
-    - name: 🗃️ Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: 🗃️ Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: 🔧 Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ inputs.dotnet-version }}
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
 
-    - name: 🔄 Restore
-      run: dotnet restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
+      - name: 🔄 Restore
+        run: dotnet restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
 
-    - name: 🏗️ Build
-      run: dotnet build --configuration Release --no-restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
+      - name: 🏗️ Build
+        run: dotnet build --configuration Release --no-restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
 
-    - name: 📦 Pack
-      run: dotnet pack --configuration Release --no-build -o .
-      if: ${{ inputs.create-nuget-package }}
+      - name: 📦 Pack
+        run: dotnet pack --configuration Release --no-build -o .
+        if: ${{ inputs.create-nuget-package }}
 
-    - name: ⬆️ Upload package artifact
-      uses: actions/upload-artifact@v4
-      if: ${{ inputs.create-nuget-package }}
-      with:
-        name: nuget-package
-        path: "*.nupkg"
+      - name: ⬆️ Upload package artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.create-nuget-package }}
+        with:
+          name: nuget-package
+          path: "*.nupkg"

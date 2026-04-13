@@ -11,6 +11,10 @@ jobs:
   publish-nuget:
     runs-on: ubuntu-latest
     steps:        
+      - name: Inputs
+        run: |
+          echo "dotnet-version = ${{ inputs.dotnet-version }}"
+
       - name: ✅ Ensure NuGet API key is present
         run: |
           if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
