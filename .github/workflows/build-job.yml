@@ -20,6 +20,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Debug inputs
+      run: |
+        echo "dotnet-version = ${{ inputs.dotnet-version }}"
+        echo "use-local-projects = ${{ inputs.use-local-projects }}"
+        echo "create-nuget-package = ${{ inputs.create-nuget-package }}"
+
     - name: 🗃️ Checkout
       uses: actions/checkout@v4
       with:
