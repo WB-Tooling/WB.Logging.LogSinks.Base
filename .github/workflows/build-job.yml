@@ -54,4 +54,4 @@ jobs:
         if: ${{ inputs.create-nuget-package }}
         with:
           name: nuget-package
-          path: "src/*.nupkg"
+          path: "src/${{ github.event.repository.name }}.nupkg"
