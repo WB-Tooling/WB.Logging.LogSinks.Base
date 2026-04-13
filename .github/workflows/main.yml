@@ -11,6 +11,9 @@ permissions:
   checks: write
   pull-requests: write
 
+env:
+  DOTNET_VERSION: '10.0.x'
+
 jobs:
   validate-version:
     name: 🧐 Validate Version
@@ -21,7 +24,7 @@ jobs:
     name: 🏗️ Build Nuget Package
     uses: ./.github/workflows/build-job.yml
     with:
-      dotnet-version: '10.0.x'
+      dotnet-version: ${{ env.DOTNET_VERSION }}
       use-local-projects: false
       create-nuget-package: true
 
@@ -29,7 +32,7 @@ jobs:
     name: 🏗️ Build Against Sources
     uses: ./.github/workflows/build-job.yml
     with:
-      dotnet-version: '10.0.x'
+      dotnet-version: ${{ env.DOTNET_VERSION }}
       use-local-projects: true
       create-nuget-package: false
 
@@ -38,7 +41,7 @@ jobs:
     uses: ./.github/workflows/test-job.yml
     needs: [build, build-against-sources]
     with:
-      dotnet-version: '10.0.x'
+      dotnet-version: ${{ env.DOTNET_VERSION }}
   
   publish-nuget:
     name: 📦 Publish Nuget Package
@@ -46,5 +49,5 @@ jobs:
     needs: [test]
     if: startsWith(github.ref, 'refs/tags/')
     with:
-      dotnet-version: '10.0.x'
+      dotnet-version: ${{ env.DOTNET_VERSION }}
     secrets: inherit
