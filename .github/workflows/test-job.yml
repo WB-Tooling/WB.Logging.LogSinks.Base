@@ -2,7 +2,7 @@ on:
   workflow_call:
     inputs: 
       dotnet-version:
-        required: false 
+        required: true 
         type: string
       use-local-projects:
         required: false
