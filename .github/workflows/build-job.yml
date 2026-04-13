@@ -6,6 +6,10 @@ on:
       dotnet-version:
         required: false 
         type: string
+      use-local-projects:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -14,6 +18,8 @@ jobs:
     steps:
     - name: 🗃️ Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: 🔧 Setup .NET
       uses: actions/setup-dotnet@v4
@@ -21,19 +27,18 @@ jobs:
         dotnet-version: ${{ inputs.dotnet-version }}
 
     - name: 🔄 Restore
-      working-directory: src
-      run: dotnet restore
+      run: dotnet restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
 
     - name: 🏗️ Build
-      working-directory: src
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore /p:UseLocalProjects=${{ inputs.use-local-projects }}
 
     - name: 📦 Pack
-      working-directory: src
       run: dotnet pack --configuration Release --no-build -o .
+      if: ${{ inputs.use-local-projects == 'false' }}
 
     - name: ⬆️ Upload package artifact
       uses: actions/upload-artifact@v4
+      if: ${{ inputs.use-local-projects == 'false' }}
       with:
         name: nuget-package
-        path: "src/*.nupkg"
+        path: "*.nupkg"
