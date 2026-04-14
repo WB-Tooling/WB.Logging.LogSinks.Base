@@ -9,9 +9,10 @@ namespace WB.Logging.LogSinks.Base;
 /// <summary>
 /// A base implementation of <see cref="IAsyncLogSink"/> that manages log message writers for different payload types.
 /// </summary>
-/// <param name="defaultLogMessageWriter">The default <see cref="IAsyncLogMessageWriter{TPayload}"/> to use when no 
+/// <param name="defaultLogMessageWriter">The default <see cref="IAsyncLogMessageWriter{TPayload, TWriter}"/> to use when no 
 /// specific writer is registered for a payload type.</param>
-public abstract class AsyncLogSinkBase(IAsyncLogMessageWriter<object> defaultLogMessageWriter) : IAsyncLogSink
+/// <param name="writer">The initial writer of type <typeparamref name="TWriter"/> that the log message writers will use to write log messages.</param>
+public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, TWriter> defaultLogMessageWriter, TWriter writer) : IAsyncLogSink
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Private Fields                                                              │
@@ -23,13 +24,9 @@ public abstract class AsyncLogSinkBase(IAsyncLogMessageWriter<object> defaultLog
     // └─────────────────────────────────────────────────────────────────────────────┘
 
     /// <summary>
-    /// Gets the default <see cref="IAsyncLogMessageWriter{TPayload}"/> to use when no specific writer is registered for a payload type.
+    /// Gets the default <see cref="IAsyncLogMessageWriter{TPayload, TWriter}"/> to use when no specific writer is registered for a payload type.
     /// </summary>
-    public IAsyncLogMessageWriter<object> DefaultLogMessageWriter => defaultLogMessageWriter;
-
-    // ┌─────────────────────────────────────────────────────────────────────────────┐
-    // │ Internal Properties                                                         │
-    // └─────────────────────────────────────────────────────────────────────────────┘
+    public IAsyncLogMessageWriter<object, TWriter> DefaultLogMessageWriter => defaultLogMessageWriter;
 
     /// <summary>
     /// Gets the registered log message writers.
@@ -37,7 +34,31 @@ public abstract class AsyncLogSinkBase(IAsyncLogMessageWriter<object> defaultLog
     /// <remarks>
     /// This is used for testing purposes to verify that log message writers are registered correctly.
     /// </remarks>
-    internal IReadOnlyList<object> LogMessageWriters => (IReadOnlyList<object>)logMessageWriters.Values;
+    public IReadOnlyList<object> LogMessageWriters => (IReadOnlyList<object>)logMessageWriters.Values;
+
+    /// <summary>
+    /// Gets or sets the writer of type <typeparamref name="TWriter"/> that this log message writer uses to write log messages.
+    /// </summary>
+    /// <remarks>
+    /// When setting the writer, it will update the writer of all registered log message writers that 
+    /// implement <see cref="IAsyncLogMessageWriter{TPayload, TWriter}"/>.
+    /// </remarks>
+    public TWriter Writer 
+    { 
+        get;
+        set
+        {
+            field = value;
+
+            foreach (var writer in logMessageWriters.Values)
+            {
+                if (writer is IAsyncLogMessageWriter<object, TWriter> asyncLogMessageWriter)
+                {
+                    asyncLogMessageWriter.Writer = value;
+                }
+            }
+        } 
+    } = writer;
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
@@ -48,7 +69,7 @@ public abstract class AsyncLogSinkBase(IAsyncLogMessageWriter<object> defaultLog
     {
         ArgumentNullException.ThrowIfNull(logMessage, nameof(logMessage));
 
-        if (TryGetLogMessageWriter(out IAsyncLogMessageWriter<TPayload>? logMessageWriter))
+        if (TryGetLogMessageWriter(out IAsyncLogMessageWriter<TPayload, TWriter>? logMessageWriter))
         {
             await logMessageWriter.WriteAsync(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload!).ConfigureAwait(false);
         }
@@ -67,7 +88,7 @@ public abstract class AsyncLogSinkBase(IAsyncLogMessageWriter<object> defaultLog
     /// <param name="logMessageWriter">The log message writer to register.</param>
     /// <returns>A <see cref="IDisposable"/> that, when disposed, unregisters the log message writer.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="logMessageWriter"/> is <c>null</c>.</exception>
-    public IDisposable RegisterLogMessageWriter<TPayload>(IAsyncLogMessageWriter<TPayload> logMessageWriter)
+    public IDisposable RegisterLogMessageWriter<TPayload>(IAsyncLogMessageWriter<TPayload, TWriter> logMessageWriter)
     {
         ArgumentNullException.ThrowIfNull(logMessageWriter);
 
@@ -79,11 +100,11 @@ public abstract class AsyncLogSinkBase(IAsyncLogMessageWriter<object> defaultLog
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Private Methods                                                             │
     // └─────────────────────────────────────────────────────────────────────────────┘
-    private bool TryGetLogMessageWriter<TPayload>([NotNullWhen(true)] out IAsyncLogMessageWriter<TPayload>? logMessageWriter)
+    private bool TryGetLogMessageWriter<TPayload>([NotNullWhen(true)] out IAsyncLogMessageWriter<TPayload, TWriter>? logMessageWriter)
     {
         if (logMessageWriters.TryGetValue(typeof(TPayload), out var writer))
         {
-            logMessageWriter = (IAsyncLogMessageWriter<TPayload>)writer;
+            logMessageWriter = (IAsyncLogMessageWriter<TPayload, TWriter>)writer;
 
             return true;
         }
