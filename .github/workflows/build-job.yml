@@ -50,7 +50,7 @@ jobs:
         if: ${{ inputs.create-nuget-package }}
 
       - name: ⬆️ Upload package artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: ${{ inputs.create-nuget-package }}
         with:
           name: nuget-package
