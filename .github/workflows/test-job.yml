@@ -84,7 +84,7 @@ jobs:
               --results-directory ${{ matrix.project.workingDirectory }}
 
       - name: 📤 Upload Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.project.name }} Test Results
           path: "${{ matrix.project.workingDirectory }}/**/${{ matrix.project.name }}.Results.trx"
