@@ -19,7 +19,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     // │ Private Fields                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
     private readonly ConcurrentDictionary<Type, object> logMessageWriters = new();
-    private int disabled;
+    private int isDisabled;
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
@@ -70,10 +70,10 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     /// <remarks>
     /// The value is stored atomically for thread-safe reads and writes.
     /// </remarks>
-    public bool Disabled
+    public bool IsDisabled
     {
-        get => Volatile.Read(ref disabled) == 1;
-        set => Interlocked.Exchange(ref disabled, value ? 1 : 0);
+        get => Volatile.Read(ref isDisabled) == 1;
+        set => Interlocked.Exchange(ref isDisabled, value ? 1 : 0);
     }
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -83,7 +83,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     /// <inheritdoc/>
     public async ValueTask SubmitAsync<TPayload>(ILogMessage<TPayload> logMessage)
     {
-        if (Disabled)
+        if (IsDisabled)
         {
             return;
         }

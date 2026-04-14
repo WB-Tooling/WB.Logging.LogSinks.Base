@@ -42,17 +42,6 @@ internal sealed class TestLogSink() : LogSinkBase<TestWriter>(new DefaultLogMess
 {
 }
 
-internal sealed class LogMessage<TPayload> : ILogMessage<TPayload>
-{
-    public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.MinValue;
-
-    public IReadOnlyList<string> Senders { get; set; } = [];
-
-    public LogLevel? LogLevel { get; set; }
-
-    public TPayload? Payload { get; set; }
-}
-
 public sealed class TheSubmitMethod
 {
     [Test]
