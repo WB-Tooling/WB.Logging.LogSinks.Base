@@ -3,6 +3,9 @@ name: Validate Version
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   validate-version:
     runs-on: ubuntu-latest
