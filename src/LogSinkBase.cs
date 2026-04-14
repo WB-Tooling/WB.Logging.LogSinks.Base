@@ -49,7 +49,9 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
         {
             field = value;
 
-            foreach (var writer in logMessageWriters.Values)
+            object[] logMessageWriters = [DefaultLogMessageWriter, .. this.logMessageWriters.Values];
+
+            foreach (object writer in logMessageWriters)
             {
                 if (writer is IAsyncLogMessageWriter<object, TWriter> asyncLogMessageWriter)
                 {
