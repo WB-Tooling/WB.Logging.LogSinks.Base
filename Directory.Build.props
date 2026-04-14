@@ -56,11 +56,4 @@
     <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath="" />
   </ItemGroup>
 
-  <!-- ╭──────────────────────────────────────────────────────────────────────╮
-       │ Directories                                                          │
-       ╰──────────────────────────────────────────────────────────────────────╯ -->
-  <PropertyGroup>
-    <PathToLocalProjects>$(MSBuildThisFileDirectory)deps/</PathToLocalProjects>
-  </PropertyGroup>
-
 </Project>
