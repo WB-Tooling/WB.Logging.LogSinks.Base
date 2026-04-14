@@ -12,6 +12,15 @@ namespace WB.Logging.LogSinks.Base;
 public interface ILogMessageWriter<TPayload, TWriter> : IHasWriter<TWriter>
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
+    // │ Public Properties                                                           │
+    // └─────────────────────────────────────────────────────────────────────────────┘
+
+    /// <summary>
+    /// Gets or sets the <see cref="IAsyncLogSink"/> that this log message writer belongs to.
+    /// </summary>
+    public ILogSink? LogSink { get; set; }
+
+    // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
 

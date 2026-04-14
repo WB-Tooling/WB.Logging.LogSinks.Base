@@ -20,6 +20,8 @@ internal sealed class TestLogSink() : AsyncLogSinkBase<TestWriter>(new TestLogMe
 internal sealed class TestLogMessageWriter : IAsyncLogMessageWriter<object, TestWriter>
 {
     public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    
+    public IAsyncLogSink? LogSink { get; set; }
 
     public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {

@@ -15,6 +15,8 @@ internal sealed class DefaultLogMessageWriter : ILogMessageWriter<object, TestWr
     public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public List<object?> WrittenMessages { get; } = [];
+    
+    public ILogSink? LogSink { get; set; }
 
     public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {
@@ -27,6 +29,8 @@ internal sealed class StringLogMessageWriter : ILogMessageWriter<string, TestWri
     public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public List<string?> WrittenMessages { get; } = [];
+    
+    public ILogSink? LogSink { get; set; }
 
     public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, string? payload)
     {

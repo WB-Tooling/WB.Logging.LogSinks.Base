@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WB.Logging.LogSinks.Base;
@@ -18,6 +19,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     // │ Private Fields                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
     private readonly ConcurrentDictionary<Type, object> logMessageWriters = new();
+    private int disabled;
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
@@ -43,8 +45,8 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     /// When setting the writer, it will update the writer of all registered log message writers that 
     /// implement <see cref="IAsyncLogMessageWriter{TPayload, TWriter}"/>.
     /// </remarks>
-    public TWriter Writer 
-    { 
+    public TWriter Writer
+    {
         get;
         set
         {
@@ -59,8 +61,20 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
                     asyncLogMessageWriter.Writer = value;
                 }
             }
-        } 
+        }
     } = writer;
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether this sink is disabled.
+    /// </summary>
+    /// <remarks>
+    /// The value is stored atomically for thread-safe reads and writes.
+    /// </remarks>
+    public bool Disabled
+    {
+        get => Volatile.Read(ref disabled) == 1;
+        set => Interlocked.Exchange(ref disabled, value ? 1 : 0);
+    }
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
@@ -69,6 +83,11 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     /// <inheritdoc/>
     public async ValueTask SubmitAsync<TPayload>(ILogMessage<TPayload> logMessage)
     {
+        if (Disabled)
+        {
+            return;
+        }
+
         ArgumentNullException.ThrowIfNull(logMessage, nameof(logMessage));
 
         if (TryGetLogMessageWriter(out IAsyncLogMessageWriter<TPayload, TWriter>? logMessageWriter))
@@ -93,6 +112,8 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     public IDisposable RegisterLogMessageWriter<TPayload>(IAsyncLogMessageWriter<TPayload, TWriter> logMessageWriter)
     {
         ArgumentNullException.ThrowIfNull(logMessageWriter);
+
+        logMessageWriter.LogSink = this;
 
         logMessageWriters[typeof(TPayload)] = logMessageWriter;
 
