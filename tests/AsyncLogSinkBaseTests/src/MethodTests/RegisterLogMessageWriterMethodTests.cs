@@ -7,12 +7,20 @@ using WB.Logging.LogSinks.Base;
 
 namespace AsyncLogSinkBaseTests.MethodTests.RegisterLogMessageWriterMethodTests;
 
-internal sealed class TestLogSink() : AsyncLogSinkBase(new TestLogMessageWriter())
+internal sealed class TestWriter
 {
 }
 
-internal sealed class TestLogMessageWriter : IAsyncLogMessageWriter<object>
+internal sealed class TestLogSink() : AsyncLogSinkBase<TestWriter>(new TestLogMessageWriter(), new TestWriter())
 {
+}
+
+
+
+internal sealed class TestLogMessageWriter : IAsyncLogMessageWriter<object, TestWriter>
+{
+    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
     public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {
         throw new NotImplementedException();

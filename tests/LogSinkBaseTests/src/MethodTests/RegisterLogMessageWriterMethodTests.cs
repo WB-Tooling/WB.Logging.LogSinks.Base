@@ -6,12 +6,18 @@ using WB.Logging.LogSinks.Base;
 
 namespace LogSinkBaseTests.MethodTests.RegisterLogMessageWriterMethodTests;
 
-internal sealed class TestLogSink() : LogSinkBase(new TestLogMessageWriter())
+internal sealed class TestWriter
 {
 }
 
-internal sealed class TestLogMessageWriter : ILogMessageWriter<object>
+internal sealed class TestLogSink() : LogSinkBase<TestWriter>(new TestLogMessageWriter(), new TestWriter())
 {
+}
+
+internal sealed class TestLogMessageWriter : ILogMessageWriter<object, TestWriter>
+{
+    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
     public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {
         throw new NotImplementedException();
