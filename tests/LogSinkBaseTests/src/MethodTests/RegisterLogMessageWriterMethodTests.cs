@@ -17,6 +17,8 @@ internal sealed class TestLogSink() : LogSinkBase<TestWriter>(new TestLogMessage
 internal sealed class TestLogMessageWriter : ILogMessageWriter<object, TestWriter>
 {
     public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    
+    public ILogSink? LogSink { get; set; }
 
     public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {

@@ -16,6 +16,8 @@ internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<object, T
     public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public List<string?> WrittenMessages { get; } = [];
+    
+    public IAsyncLogSink? LogSink { get; set; }
 
     public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {
@@ -30,6 +32,8 @@ internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<string, Te
     public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public List<string?> WrittenMessages { get; } = [];
+    
+    public IAsyncLogSink? LogSink { get; set; }
 
     public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, string? payload)
     {
@@ -41,17 +45,6 @@ internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<string, Te
 
 internal sealed class TestLogSink() : AsyncLogSinkBase<TestWriter>(new DefaultLogMessageWriter(), new TestWriter())
 {
-}
-
-internal sealed class LogMessage<TPayload> : ILogMessage<TPayload>
-{
-    public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.MinValue;
-
-    public IReadOnlyList<string> Senders { get; set; } = [];
-
-    public LogLevel? LogLevel { get; set; }
-
-    public TPayload? Payload { get; set; }
 }
 
 public sealed class TheSubmitMethod
