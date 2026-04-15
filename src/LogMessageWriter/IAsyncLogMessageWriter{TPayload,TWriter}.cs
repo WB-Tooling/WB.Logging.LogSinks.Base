@@ -11,6 +11,7 @@ namespace WB.Logging.LogSinks.Base;
 /// <typeparam name="TPayload">The type of the payload of the log messages that this writer can write.</typeparam>
 /// <typeparam name="TWriter">The type of the writer that this log message writer uses to write log messages.</typeparam>
 public interface IAsyncLogMessageWriter<TPayload, TWriter> : IHasWriter<TWriter>
+    where TPayload : notnull
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
@@ -34,5 +35,5 @@ public interface IAsyncLogMessageWriter<TPayload, TWriter> : IHasWriter<TWriter>
     /// <param name="senders">The senders of the log message.</param>
     /// <param name="payload">The payload of the log message.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous write operation.</returns>
-    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, TPayload? payload);
+    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, TPayload payload);
 }

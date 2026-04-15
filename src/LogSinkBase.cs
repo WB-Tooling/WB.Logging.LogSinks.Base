@@ -82,6 +82,7 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
 
     /// <inheritdoc/>
     public void Submit<TPayload>(ILogMessage<TPayload> logMessage)
+        where TPayload : notnull
     {
         if (IsDisabled)
         {
@@ -96,7 +97,7 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
         }
         else
         {
-            defaultLogMessageWriter.Write(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload?.ToString());
+            defaultLogMessageWriter.Write(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload.ToString() ?? "null");
         }
     }
 
@@ -110,6 +111,7 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
     /// <returns>A <see cref="IDisposable"/> that, when disposed, unregisters the log message writer.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="logMessageWriter"/> is <c>null</c>.</exception>
     public IDisposable RegisterLogMessageWriter<TPayload>(ILogMessageWriter<TPayload, TWriter> logMessageWriter)
+        where TPayload : notnull
     {
         ArgumentNullException.ThrowIfNull(logMessageWriter);
 
@@ -124,6 +126,7 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
     // │ Private Methods                                                             │
     // └─────────────────────────────────────────────────────────────────────────────┘
     private bool TryGetLogMessageWriter<TPayload>([NotNullWhen(true)] out ILogMessageWriter<TPayload, TWriter>? logMessageWriter)
+        where TPayload : notnull
     {
         if (logMessageWriters.TryGetValue(typeof(TPayload), out var writer))
         {

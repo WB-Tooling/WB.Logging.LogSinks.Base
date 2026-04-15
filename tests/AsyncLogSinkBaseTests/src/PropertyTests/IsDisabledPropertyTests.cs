@@ -60,7 +60,7 @@ public sealed class TheIsDisabledProperty
         TestLogMessageWriter logMessageWriter = (TestLogMessageWriter)logSink.DefaultLogMessageWriter;
 
         // Act
-        await logSink.SubmitAsync(new LogMessage<object?>() { Payload = new object() }).ConfigureAwait(false);
+        await logSink.SubmitAsync(new LogMessage<object>() { Payload = new object() }).ConfigureAwait(false);
 
         // Assert
         logMessageWriter.Called.Should().Be(logMessageWriterCalled, because: "the log message writer should only be called when the log sink is not disabled");

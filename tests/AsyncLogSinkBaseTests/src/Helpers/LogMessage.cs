@@ -5,6 +5,7 @@ using WB.Logging;
 namespace AsyncLogSinkBaseTests;
 
 internal sealed class LogMessage<TPayload> : ILogMessage<TPayload>
+    where TPayload : notnull
 {
     public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.MinValue;
 
@@ -12,5 +13,5 @@ internal sealed class LogMessage<TPayload> : ILogMessage<TPayload>
 
     public LogLevel? LogLevel { get; set; }
 
-    public TPayload? Payload { get; set; }
+    public required TPayload Payload { get; init; }
 }
