@@ -82,6 +82,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
 
     /// <inheritdoc/>
     public async ValueTask SubmitAsync<TPayload>(ILogMessage<TPayload> logMessage)
+        where TPayload : notnull
     {
         if (IsDisabled)
         {
@@ -92,11 +93,11 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
 
         if (TryGetLogMessageWriter(out IAsyncLogMessageWriter<TPayload, TWriter>? logMessageWriter))
         {
-            await logMessageWriter.WriteAsync(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload!).ConfigureAwait(false);
+            await logMessageWriter.WriteAsync(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload).ConfigureAwait(false);
         }
         else
         {
-            await defaultLogMessageWriter.WriteAsync(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload?.ToString()).ConfigureAwait(false);
+            await defaultLogMessageWriter.WriteAsync(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload?.ToString() ?? "null").ConfigureAwait(false);
         }
     }
 
@@ -110,6 +111,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     /// <returns>A <see cref="IDisposable"/> that, when disposed, unregisters the log message writer.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="logMessageWriter"/> is <c>null</c>.</exception>
     public IDisposable RegisterLogMessageWriter<TPayload>(IAsyncLogMessageWriter<TPayload, TWriter> logMessageWriter)
+        where TPayload : notnull
     {
         ArgumentNullException.ThrowIfNull(logMessageWriter);
 
@@ -124,6 +126,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     // │ Private Methods                                                             │
     // └─────────────────────────────────────────────────────────────────────────────┘
     private bool TryGetLogMessageWriter<TPayload>([NotNullWhen(true)] out IAsyncLogMessageWriter<TPayload, TWriter>? logMessageWriter)
+        where TPayload : notnull
     {
         if (logMessageWriters.TryGetValue(typeof(TPayload), out var writer))
         {
