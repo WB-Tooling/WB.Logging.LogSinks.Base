@@ -87,4 +87,21 @@ public sealed class TheDisableMethod
         // Assert
         logMessageWriter.Called.Should().Be(logMessageWriterCalled, because: "the log message writer should only be called if the log sink is not disabled");
     }
+
+    [Test]
+    public void ShouldReEnableLogSinkWhenReturnedIDisposableIsDisposed()
+    {
+        // Arrange
+        TestLogSink logSink = new();
+
+        // Act
+        using (logSink.Disable())
+        {
+            // Assert
+            logSink.IsDisabled.Should().BeTrue(because: "the log sink should be disabled within the using block");
+        }
+
+        // Assert
+        logSink.IsDisabled.Should().BeFalse(because: "the log sink should be re-enabled after the using block");
+    }
 }
