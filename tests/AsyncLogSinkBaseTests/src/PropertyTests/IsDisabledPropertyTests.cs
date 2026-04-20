@@ -45,24 +45,4 @@ public sealed class TheIsDisabledProperty
         // Assert
         isDisabled.Should().BeFalse(because: "log sinks should be enabled by default");
     }
-
-    [Test]
-    [Arguments(true, false)]
-    [Arguments(false, true)]
-    public async Task ShouldSetAndGetIsDisabledProperty(bool isDisabled, bool logMessageWriterCalled)
-    {
-        // Arrange
-        TestLogSink logSink = new()
-        {
-            IsDisabled = isDisabled
-        };
-
-        TestLogMessageWriter logMessageWriter = (TestLogMessageWriter)logSink.DefaultLogMessageWriter;
-
-        // Act
-        await logSink.SubmitAsync(new LogMessage<object>() { Payload = new object() }).ConfigureAwait(false);
-
-        // Assert
-        logMessageWriter.Called.Should().Be(logMessageWriterCalled, because: "the log message writer should only be called when the log sink is not disabled");
-    }
 }

@@ -63,7 +63,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
             }
         }
     } = writer;
-    
+
     /// <summary>
     /// Gets or sets a value indicating whether this sink is disabled.
     /// </summary>
@@ -73,7 +73,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     public bool IsDisabled
     {
         get => Volatile.Read(ref isDisabled) == 1;
-        set => Interlocked.Exchange(ref isDisabled, value ? 1 : 0);
+        private set => Interlocked.Exchange(ref isDisabled, value ? 1 : 0);
     }
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -120,6 +120,23 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
         logMessageWriters[typeof(TPayload)] = logMessageWriter;
 
         return new DelegateDisposable(() => logMessageWriters.TryRemove(typeof(TPayload), out _));
+    }
+
+    /// <summary>
+    /// Disables this log sink, preventing it from processing any log messages until it is re-enabled.
+    /// </summary>
+    /// <returns>A <see cref="IDisposable"/> that, when disposed, re-enables the log sink.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the log sink is already disabled.</exception>
+    public IDisposable Disable()
+    {
+        if (IsDisabled)
+        {
+            throw new InvalidOperationException("The log sink is already disabled.");
+        }
+
+        IsDisabled = true;
+
+        return new DelegateDisposable(() => IsDisabled = false);
     }
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐

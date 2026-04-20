@@ -13,5 +13,5 @@ public interface IHasWriter<TWriter>
     /// <summary>
     /// Gets or sets the <typeparamref name="TWriter"/>.
     /// </summary>
-    public TWriter Writer { get; set;}
+    public TWriter Writer { get; set; }
 }
