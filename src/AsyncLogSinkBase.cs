@@ -123,11 +123,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
         return new DelegateDisposable(() => logMessageWriters.TryRemove(typeof(TPayload), out _));
     }
 
-    /// <summary>
-    /// Disables this log sink, preventing it from processing any log messages until it is re-enabled.
-    /// </summary>
-    /// <returns>A <see cref="IDisposable"/> that, when disposed, re-enables the log sink.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the log sink is already disabled.</exception>
+    /// <inheritdoc/>
     public IDisposable Disable()
     {
         if (IsDisabled)
