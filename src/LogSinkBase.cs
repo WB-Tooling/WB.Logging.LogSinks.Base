@@ -122,6 +122,23 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
         return new DelegateDisposable(() => logMessageWriters.TryRemove(typeof(TPayload), out _));
     }
 
+    /// <summary>
+    /// Disables this log sink, preventing it from processing any log messages until it is re-enabled.
+    /// </summary>
+    /// <returns>A <see cref="IDisposable"/> that, when disposed, re-enables the log sink.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the log sink is already disabled.</exception>
+    public IDisposable Disable()
+    {
+        if (IsDisabled)
+        {
+            throw new InvalidOperationException("The log sink is already disabled.");
+        }
+
+        IsDisabled = true;
+
+        return new DelegateDisposable(() => IsDisabled = false);
+    }
+
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Private Methods                                                             │
     // └─────────────────────────────────────────────────────────────────────────────┘

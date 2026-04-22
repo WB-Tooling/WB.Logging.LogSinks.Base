@@ -19,6 +19,7 @@ public abstract class AsyncLogSinkBase<TWriter>(IAsyncLogMessageWriter<object, T
     // │ Private Fields                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
     private readonly ConcurrentDictionary<Type, object> logMessageWriters = new();
+    
     private int isDisabled;
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
