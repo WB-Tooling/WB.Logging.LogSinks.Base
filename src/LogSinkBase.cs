@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
+using System.Linq;
 
 namespace WB.Logging.LogSinks.Base;
 
@@ -19,7 +19,7 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
     // └─────────────────────────────────────────────────────────────────────────────┘
     private readonly ConcurrentDictionary<Type, object> logMessageWriters = new();
 
-    private int isDisabled;
+    private readonly ConcurrentBag<ILogMessageFilter> filters = [];
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
@@ -64,18 +64,6 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
         }
     } = writer;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this sink is disabled.
-    /// </summary>
-    /// <remarks>
-    /// The value is stored atomically for thread-safe reads and writes.
-    /// </remarks>
-    public bool IsDisabled
-    {
-        get => Volatile.Read(ref isDisabled) == 1;
-        set => Interlocked.Exchange(ref isDisabled, value ? 1 : 0);
-    }
-
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
@@ -84,7 +72,7 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
     public void Submit<TPayload>(ILogMessage<TPayload> logMessage)
         where TPayload : notnull
     {
-        if (IsDisabled)
+        if (!filters.All(filter => filter.IsMatch(logMessage)))
         {
             return;
         }
@@ -123,16 +111,13 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
     }
 
     /// <inheritdoc/>
-    public IDisposable Disable()
+    public IDisposable AddFilter(ILogMessageFilter filter)
     {
-        if (IsDisabled)
-        {
-            throw new InvalidOperationException("The log sink is already disabled.");
-        }
+        ArgumentNullException.ThrowIfNull(filter);
 
-        IsDisabled = true;
+        filters.Add(filter);
 
-        return new DelegateDisposable(() => IsDisabled = false);
+        return new DelegateDisposable(() => filters.TryTake(out _));
     }
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
