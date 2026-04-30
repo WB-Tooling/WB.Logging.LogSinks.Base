@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using WB.Logging;
@@ -11,13 +12,12 @@ internal sealed class TestWriter
 {
 }
 
-internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<object, TestWriter>
+internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<TestLogSink, object>
 {
-    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
     public List<string?> WrittenMessages { get; } = [];
     
-    public IAsyncLogSink? LogSink { get; set; }
+    [NotNull]
+    public TestLogSink? LogSink { get; set; }
 
     public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {
@@ -27,13 +27,12 @@ internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<object, T
     }
 }
 
-internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<string, TestWriter>
+internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<TestLogSink, string>
 {
-    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
     public List<string?> WrittenMessages { get; } = [];
     
-    public IAsyncLogSink? LogSink { get; set; }
+    [NotNull]
+    public TestLogSink? LogSink { get; set; }
 
     public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, string? payload)
     {
@@ -43,7 +42,7 @@ internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<string, Te
     }
 }
 
-internal sealed class TestLogSink() : AsyncLogSinkBase<TestWriter>(new DefaultLogMessageWriter(), new TestWriter())
+internal sealed class TestLogSink() : AsyncLogSinkBase<TestLogSink>(new DefaultLogMessageWriter())
 {
 }
 

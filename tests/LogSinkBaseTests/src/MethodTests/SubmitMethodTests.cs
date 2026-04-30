@@ -1,22 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using AwesomeAssertions;
 using WB.Logging;
 using WB.Logging.LogSinks.Base;
 
 namespace LogSinkBaseTests.MethodTests.SubmitMethodTests;
 
-internal sealed class TestWriter
+internal sealed class DefaultLogMessageWriter : ILogMessageWriter<TestLogSink, object>
 {
-}
-
-internal sealed class DefaultLogMessageWriter : ILogMessageWriter<object, TestWriter>
-{
-    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    [NotNull]
+    public TestLogSink? LogSink { get; set; }
 
     public List<object?> WrittenMessages { get; } = [];
-    
-    public ILogSink? LogSink { get; set; }
 
     public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {
@@ -24,21 +20,20 @@ internal sealed class DefaultLogMessageWriter : ILogMessageWriter<object, TestWr
     }
 }
 
-internal sealed class StringLogMessageWriter : ILogMessageWriter<string, TestWriter>
+internal sealed class StringLogMessageWriter : ILogMessageWriter<TestLogSink, string>
 {
-    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    [NotNull]
+    public TestLogSink? LogSink { get; set; }
 
     public List<string?> WrittenMessages { get; } = [];
     
-    public ILogSink? LogSink { get; set; }
-
     public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, string? payload)
     {
         WrittenMessages.Add(payload);
     }
 }
 
-internal sealed class TestLogSink() : LogSinkBase<TestWriter>(new DefaultLogMessageWriter(), new TestWriter())
+internal sealed class TestLogSink() : LogSinkBase<TestLogSink>(new DefaultLogMessageWriter())
 {
 }
 

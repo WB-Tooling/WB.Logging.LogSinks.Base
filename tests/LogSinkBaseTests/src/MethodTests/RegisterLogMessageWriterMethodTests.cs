@@ -1,24 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using AwesomeAssertions;
 using WB.Logging;
 using WB.Logging.LogSinks.Base;
 
 namespace LogSinkBaseTests.MethodTests.RegisterLogMessageWriterMethodTests;
 
-internal sealed class TestWriter
+internal sealed class TestLogSink() : LogSinkBase<TestLogSink>(new TestLogMessageWriter())
 {
 }
 
-internal sealed class TestLogSink() : LogSinkBase<TestWriter>(new TestLogMessageWriter(), new TestWriter())
-{
-}
-
-internal sealed class TestLogMessageWriter : ILogMessageWriter<object, TestWriter>
-{
-    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    
-    public ILogSink? LogSink { get; set; }
+internal sealed class TestLogMessageWriter : ILogMessageWriter<TestLogSink, object>
+{    
+    [NotNull]
+    public TestLogSink? LogSink { get; set; }
 
     public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {

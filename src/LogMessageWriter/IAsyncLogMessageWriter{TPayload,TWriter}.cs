@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace WB.Logging.LogSinks.Base;
@@ -8,9 +9,10 @@ namespace WB.Logging.LogSinks.Base;
 /// Defines an asynchronous log message writer for <see cref="ILogMessage{TPayload}"/> with a specific 
 /// payload type <typeparamref name="TPayload"/>.
 /// </summary>
+/// <typeparam name="TAsyncLogSink">The type of the log sink that this log message writer belongs to.</typeparam>
 /// <typeparam name="TPayload">The type of the payload of the log messages that this writer can write.</typeparam>
-/// <typeparam name="TWriter">The type of the writer that this log message writer uses to write log messages.</typeparam>
-public interface IAsyncLogMessageWriter<TPayload, TWriter> : IHasWriter<TWriter>
+public interface IAsyncLogMessageWriter<TAsyncLogSink, TPayload>
+    where TAsyncLogSink : IAsyncLogSink
     where TPayload : notnull
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -20,7 +22,8 @@ public interface IAsyncLogMessageWriter<TPayload, TWriter> : IHasWriter<TWriter>
     /// <summary>
     /// Gets or sets the <see cref="IAsyncLogSink"/> that this log message writer belongs to.
     /// </summary>
-    public IAsyncLogSink? LogSink { get; set; }
+    [NotNull]
+    public TAsyncLogSink? LogSink { get; set; }
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
