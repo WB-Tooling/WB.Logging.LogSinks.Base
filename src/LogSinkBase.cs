@@ -9,26 +9,24 @@ namespace WB.Logging.LogSinks.Base;
 /// <summary>
 /// A base implementation of <see cref="ILogSink"/> that manages log message writers for different payload types.
 /// </summary>
-/// <param name="defaultLogMessageWriter">The default <see cref="ILogMessageWriter{TPayload, TWriter}"/> to use when no 
+/// <param name="defaultLogMessageWriter">The default <see cref="ILogMessageWriter{TLogSink, TPayload}"/> to use when no 
 /// specific writer is registered for a payload type.</param>
-/// <param name="writer">The initial writer of type <typeparamref name="TWriter"/> that the log message writers will use to write log messages.</param>
-public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> defaultLogMessageWriter, TWriter writer) : ILogSink
+public abstract class LogSinkBase<TLogSinkBase>(ILogMessageWriter<TLogSinkBase, object> defaultLogMessageWriter) : ILogSink
+    where TLogSinkBase : LogSinkBase<TLogSinkBase>
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Private Fields                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
     private readonly ConcurrentDictionary<Type, object> logMessageWriters = new();
 
-    private readonly ConcurrentBag<ILogMessageFilter> filters = [];
-
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
     // └─────────────────────────────────────────────────────────────────────────────┘
 
     /// <summary>
-    /// Gets the default <see cref="ILogMessageWriter{TPayload, TWriter}"/> to use when no specific writer is registered for a payload type.
+    /// Gets the default <see cref="ILogMessageWriter{TLogSink, TPayload}"/> to use when no specific writer is registered for a payload type.
     /// </summary>
-    public ILogMessageWriter<object, TWriter> DefaultLogMessageWriter => defaultLogMessageWriter;
+    public ILogMessageWriter<TLogSinkBase, object> DefaultLogMessageWriter => defaultLogMessageWriter;
 
     /// <summary>
     /// Gets the registered log message writers.
@@ -38,48 +36,17 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
     /// </remarks>
     public IReadOnlyList<object> LogMessageWriters => (IReadOnlyList<object>)logMessageWriters.Values;
 
-    /// <summary>
-    /// Gets or sets the writer of type <typeparamref name="TWriter"/> that this log message writer uses to write log messages.
-    /// </summary>
-    /// <remarks>
-    /// When setting the writer, it will update the writer of all registered log message writers that 
-    /// implement <see cref="IAsyncLogMessageWriter{TPayload, TWriter}"/>.
-    /// </remarks>
-    public TWriter Writer
-    {
-        get;
-        set
-        {
-            field = value;
-
-            object[] logMessageWriters = [DefaultLogMessageWriter, .. this.logMessageWriters.Values];
-
-            foreach (object writer in logMessageWriters)
-            {
-                if (writer is IHasWriter<TWriter> asyncLogMessageWriter)
-                {
-                    asyncLogMessageWriter.Writer = value;
-                }
-            }
-        }
-    } = writer;
-
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
 
     /// <inheritdoc/>
-    public void Submit<TPayload>(ILogMessage<TPayload> logMessage)
+    public virtual void Submit<TPayload>(ILogMessage<TPayload> logMessage)
         where TPayload : notnull
     {
-        if (!filters.All(filter => filter.IsMatch(logMessage)))
-        {
-            return;
-        }
-
         ArgumentNullException.ThrowIfNull(logMessage, nameof(logMessage));
 
-        if (TryGetLogMessageWriter(out ILogMessageWriter<TPayload, TWriter>? logMessageWriter))
+        if (TryGetLogMessageWriter(out ILogMessageWriter<TLogSinkBase, TPayload>? logMessageWriter))
         {
             logMessageWriter.Write(logMessage.Timestamp, logMessage.LogLevel, logMessage.Senders, logMessage.Payload!);
         }
@@ -98,37 +65,27 @@ public abstract class LogSinkBase<TWriter>(ILogMessageWriter<object, TWriter> de
     /// <param name="logMessageWriter">The log message writer to register.</param>
     /// <returns>A <see cref="IDisposable"/> that, when disposed, unregisters the log message writer.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="logMessageWriter"/> is <c>null</c>.</exception>
-    public IDisposable RegisterLogMessageWriter<TPayload>(ILogMessageWriter<TPayload, TWriter> logMessageWriter)
+    public IDisposable RegisterLogMessageWriter<TPayload>(ILogMessageWriter<TLogSinkBase, TPayload> logMessageWriter)
         where TPayload : notnull
     {
         ArgumentNullException.ThrowIfNull(logMessageWriter);
 
-        logMessageWriter.LogSink = this;
+        logMessageWriter.LogSink = (TLogSinkBase)this;
 
         logMessageWriters[typeof(TPayload)] = logMessageWriter;
 
         return new DelegateDisposable(() => logMessageWriters.TryRemove(typeof(TPayload), out _));
     }
 
-    /// <inheritdoc/>
-    public IDisposable AddFilter(ILogMessageFilter filter)
-    {
-        ArgumentNullException.ThrowIfNull(filter);
-
-        filters.Add(filter);
-
-        return new DelegateDisposable(() => filters.TryTake(out _));
-    }
-
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Private Methods                                                             │
     // └─────────────────────────────────────────────────────────────────────────────┘
-    private bool TryGetLogMessageWriter<TPayload>([NotNullWhen(true)] out ILogMessageWriter<TPayload, TWriter>? logMessageWriter)
+    private bool TryGetLogMessageWriter<TPayload>([NotNullWhen(true)] out ILogMessageWriter<TLogSinkBase, TPayload>? logMessageWriter)
         where TPayload : notnull
     {
         if (logMessageWriters.TryGetValue(typeof(TPayload), out var writer))
         {
-            logMessageWriter = (ILogMessageWriter<TPayload, TWriter>)writer;
+            logMessageWriter = (ILogMessageWriter<TLogSinkBase, TPayload>)writer;
 
             return true;
         }

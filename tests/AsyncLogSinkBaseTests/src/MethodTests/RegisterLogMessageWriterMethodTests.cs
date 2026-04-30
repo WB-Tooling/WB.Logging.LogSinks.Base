@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using WB.Logging;
@@ -7,21 +8,16 @@ using WB.Logging.LogSinks.Base;
 
 namespace AsyncLogSinkBaseTests.MethodTests.RegisterLogMessageWriterMethodTests;
 
-internal sealed class TestWriter
-{
-}
-
-internal sealed class TestLogSink() : AsyncLogSinkBase<TestWriter>(new TestLogMessageWriter(), new TestWriter())
+internal sealed class TestLogSink() : AsyncLogSinkBase<TestLogSink>(new TestLogMessageWriter())
 {
 }
 
 
 
-internal sealed class TestLogMessageWriter : IAsyncLogMessageWriter<object, TestWriter>
-{
-    public TestWriter Writer { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    
-    public IAsyncLogSink? LogSink { get; set; }
+internal sealed class TestLogMessageWriter : IAsyncLogMessageWriter<TestLogSink, object>
+{   
+    [NotNull] 
+    public TestLogSink? LogSink { get; set; }
 
     public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
     {
