@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 namespace WB.Logging.LogSinks.Base;
 
 /// <summary>
-/// Defines an asynchronous log message writer for <see cref="ILogMessage{TPayload}"/> with a specific 
-/// payload type <typeparamref name="TPayload"/>.
+/// Defines an asynchronous log message writer for <see cref="LogMessage"/> with a specific 
 /// </summary>
 /// <typeparam name="TAsyncLogSink">The type of the log sink that this log message writer belongs to.</typeparam>
-/// <typeparam name="TPayload">The type of the payload of the log messages that this writer can write.</typeparam>
-public interface IAsyncLogMessageWriter<TAsyncLogSink, TPayload>
+public interface IAsyncLogMessageWriter<TAsyncLogSink>
     where TAsyncLogSink : IAsyncLogSink
-    where TPayload : notnull
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
@@ -38,5 +35,5 @@ public interface IAsyncLogMessageWriter<TAsyncLogSink, TPayload>
     /// <param name="senders">The senders of the log message.</param>
     /// <param name="payload">The payload of the log message.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous write operation.</returns>
-    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, TPayload payload);
+    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object payload);
 }

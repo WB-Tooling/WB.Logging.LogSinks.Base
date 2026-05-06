@@ -5,14 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace WB.Logging.LogSinks.Base;
 
 /// <summary>
-/// Defines a log message writer for <see cref="ILogMessage{TPayload}"/> with a specific 
-/// payload type <typeparamref name="TPayload"/>.
+/// Defines a log message writer for <see cref="LogMessage"/> with a specific 
 /// </summary>
 /// <typeparam name="TLogSink">The type of the log sink that this log message writer belongs to.</typeparam>
-/// <typeparam name="TPayload">The type of the payload of the log messages that this writer can write.</typeparam>
-public interface ILogMessageWriter<TLogSink, TPayload>
+public interface ILogMessageWriter<TLogSink>
     where TLogSink : ILogSink
-    where TPayload : notnull
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
@@ -36,5 +33,5 @@ public interface ILogMessageWriter<TLogSink, TPayload>
     /// <param name="logLevel">The <see cref="LogLevel"/> of the log message.</param>
     /// <param name="senders">The senders of the log message.</param>
     /// <param name="payload">The payload of the log message.</param>
-    public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, TPayload payload);
+    public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object payload);
 }
