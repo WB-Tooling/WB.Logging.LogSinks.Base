@@ -7,29 +7,37 @@ using WB.Logging.LogSinks.Base;
 
 namespace LogSinkBaseTests.MethodTests.SubmitMethodTests;
 
-internal sealed class DefaultLogMessageWriter : ILogMessageWriter<TestLogSink, object>
+internal sealed class LogMessage<TPayload> : ILogMessage<TPayload>
+    where TPayload : notnull
 {
-    [NotNull]
-    public TestLogSink? LogSink { get; set; }
+    public required TPayload Payload { get; init; }
 
-    public List<object?> WrittenMessages { get; } = [];
+    public DateTimeOffset Timestamp { get; set; }
 
-    public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
+    public IReadOnlyList<string> Senders { get; set; } = [];
+
+    public LogLevel? LogLevel { get; set; }
+
+    object ILogMessage.Payload => Payload;
+}
+
+internal sealed class DefaultLogMessageWriter : ILogMessageWriter<object>
+{
+    public List<ILogMessage> WrittenMessages { get; } = [];
+
+    public void Write(ILogMessage<object> logMessage)
     {
-        WrittenMessages.Add(payload);
+        WrittenMessages.Add(logMessage);
     }
 }
 
-internal sealed class StringLogMessageWriter : ILogMessageWriter<TestLogSink, string>
+internal sealed class StringLogMessageWriter : ILogMessageWriter<string>
 {
-    [NotNull]
-    public TestLogSink? LogSink { get; set; }
-
-    public List<string?> WrittenMessages { get; } = [];
+    public List<ILogMessage<string>> WrittenMessages { get; } = [];
     
-    public void Write(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, string? payload)
+    public void Write(ILogMessage<string> logMessage)
     {
-        WrittenMessages.Add(payload);
+        WrittenMessages.Add(logMessage);
     }
 }
 
@@ -57,39 +65,6 @@ public sealed class TheSubmitMethod
         logSink.Submit(logMessage);
 
         // Assert
-        logMessageWriter.WrittenMessages.Should().ContainSingle().Which.Should().Be("Test log message");
-    }
-
-    [Test]
-    public void ShouldWriteLogMessageUsingDefaultLogMessageWriterWhenNoSpecificWriterIsRegistered()
-    {
-        // Arrange
-        TestLogSink logSink = new();
-        LogMessage<string> logMessage = new()
-        {
-            Timestamp = DateTimeOffset.UtcNow,
-            Senders = ["TestSender"],
-            Payload = "Test log message"
-        };
-        DefaultLogMessageWriter defaultLogMessageWriter = (DefaultLogMessageWriter)logSink.DefaultLogMessageWriter;
-
-        // Act
-        logSink.Submit(logMessage);
-
-        // Assert
-        defaultLogMessageWriter.WrittenMessages.Should().ContainSingle().Which.Should().Be("Test log message");
-    }
-
-    [Test]
-    public void ShouldThrowArgumentNullExceptionWhenLogMessageIsNull()
-    {
-        // Arrange
-        TestLogSink logSink = new();
-
-        // Act
-        Action action = () => logSink.Submit<string>(null!);
-
-        // Assert
-        action.Should().Throw<ArgumentNullException>().WithParameterName("logMessage", because: "the log message cannot be null");
+        logMessageWriter.WrittenMessages.Should().ContainSingle().Which.Should().Be(logMessage);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using WB.Logging;
@@ -8,35 +9,46 @@ using WB.Logging.LogSinks.Base;
 
 namespace AsyncLogSinkBaseTests.MethodTests.SubmitAsyncMethodTests;
 
-internal sealed class TestWriter
+internal sealed class LogMessage<TPayload> : ILogMessage<TPayload>
+    where TPayload : notnull
 {
+    public required TPayload Payload { get; init; }
+
+    public DateTimeOffset Timestamp { get; set; }
+
+    public IReadOnlyList<string> Senders { get; set; } = [];
+
+    public LogLevel? LogLevel { get; set; }
+
+    object ILogMessage.Payload => Payload;
 }
 
-internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<TestLogSink, object>
+
+internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<object>
 {
-    public List<string?> WrittenMessages { get; } = [];
-    
+    public List<ILogMessage> WrittenMessages { get; } = [];
+
     [NotNull]
     public TestLogSink? LogSink { get; set; }
 
-    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
+    public ValueTask WriteAsync(ILogMessage<object> logMessage, CancellationToken cancellationToken)
     {
-        WrittenMessages.Add(payload?.ToString());
+        WrittenMessages.Add(logMessage);
 
         return ValueTask.CompletedTask;
     }
 }
 
-internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<TestLogSink, string>
+internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<string>
 {
-    public List<string?> WrittenMessages { get; } = [];
+    public List<ILogMessage<string>> WrittenMessages { get; } = [];
     
     [NotNull]
     public TestLogSink? LogSink { get; set; }
 
-    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, string? payload)
+    public ValueTask WriteAsync(ILogMessage<string> logMessage, CancellationToken cancellationToken)
     {
-        WrittenMessages.Add(payload);
+        WrittenMessages.Add(logMessage);
         
         return ValueTask.CompletedTask;
     }
@@ -49,7 +61,7 @@ internal sealed class TestLogSink() : AsyncLogSinkBase<TestLogSink>(new DefaultL
 public sealed class TheSubmitMethod
 {
     [Test]
-    public async Task ShouldWriteLogMessageUsingRegisteredLogMessageWriter()
+    public async Task ShouldWriteLogMessagesUsingRegisteredLogMessageWriter()
     {
         // Arrange
         StringLogMessageWriter logMessageWriter = new();
@@ -63,42 +75,9 @@ public sealed class TheSubmitMethod
         };
 
         // Act
-        await logSink.SubmitAsync(logMessage);
+        await logSink.SubmitAsync(logMessage, CancellationToken.None);
 
         // Assert
-        logMessageWriter.WrittenMessages.Should().ContainSingle().Which.Should().Be("Test log message");
-    }
-
-    [Test]
-    public async Task ShouldWriteLogMessageUsingDefaultLogMessageWriterWhenNoSpecificWriterIsRegistered()
-    {
-        // Arrange
-        TestLogSink logSink = new();
-        LogMessage<string> logMessage = new()
-        {
-            Timestamp = DateTimeOffset.UtcNow,
-            Senders = ["TestSender"],
-            Payload = "Test log message"
-        };
-        DefaultLogMessageWriter defaultLogMessageWriter = (DefaultLogMessageWriter)logSink.DefaultLogMessageWriter;
-
-        // Act
-        await logSink.SubmitAsync(logMessage);
-
-        // Assert
-        defaultLogMessageWriter.WrittenMessages.Should().ContainSingle().Which.Should().Be("Test log message");
-    }
-
-    [Test]
-    public async Task ShouldThrowArgumentNullExceptionWhenLogMessageIsNull()
-    {
-        // Arrange
-        TestLogSink logSink = new();
-
-        // Act
-        Func<Task> action = () => logSink.SubmitAsync<string>(null!).AsTask();
-
-        // Assert
-        await action.Should().ThrowAsync<ArgumentNullException>().WithParameterName("logMessage", because: "the log message cannot be null");
+        logMessageWriter.WrittenMessages.Should().ContainSingle().Which.Should().Be(logMessage);
     }
 }
