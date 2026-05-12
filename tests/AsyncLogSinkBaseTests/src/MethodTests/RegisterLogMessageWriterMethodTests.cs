@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using WB.Logging;
@@ -14,12 +14,12 @@ internal sealed class TestLogSink() : AsyncLogSinkBase<TestLogSink>(new TestLogM
 
 
 
-internal sealed class TestLogMessageWriter : IAsyncLogMessageWriter<TestLogSink, object>
-{   
+internal sealed class TestLogMessageWriter : IAsyncLogMessageWriter<object>
+{
     [NotNull] 
-    public TestLogSink? LogSink { get; set; }
+    public IAsyncLogSink? LogSink { get; set; }
 
-    public ValueTask WriteAsync(DateTimeOffset timestamp, LogLevel? logLevel, IEnumerable<string> senders, object? payload)
+    public ValueTask WriteAsync(ILogMessage<object> logMessage, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
