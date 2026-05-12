@@ -9,16 +9,6 @@ public interface ILogMessageWriter<TPayload>
     where TPayload : notnull
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
-    // │ Public Properties                                                           │
-    // └─────────────────────────────────────────────────────────────────────────────┘
-
-    /// <summary>
-    /// Gets or sets the <see cref="ILogSink"/> that this log message writer belongs to.
-    /// </summary>
-    [NotNull]
-    public ILogSink? LogSink { get; set; }
-
-    // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
 

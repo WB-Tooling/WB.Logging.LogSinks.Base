@@ -56,21 +56,21 @@ internal sealed class AsyncLogMessageWriterPipeline
         ParameterExpression cancellationTokenParameter = Expression.Parameter(typeof(CancellationToken), "cancellationToken");
 
         // msg → ILogMessage<TPayload>
-        UnaryExpression typedMsg = Expression.Convert(
+        UnaryExpression typedLogMessage = Expression.Convert(
             logMessageParameter,
             typeof(ILogMessage<>).MakeGenericType(payloadType));
 
         // writer → ILogMessageWriter<TPayload>
         UnaryExpression typedWriter = Expression.Convert(
             Expression.Constant(writerObj),
-            typeof(ILogMessageWriter<>).MakeGenericType(payloadType));
+            typeof(IAsyncLogMessageWriter<>).MakeGenericType(payloadType));
 
         MethodCallExpression methodCall = Expression.Call(
             typedWriter,
-            typeof(ILogMessageWriter<>)
+            typeof(IAsyncLogMessageWriter<>)
                 .MakeGenericType(payloadType)
-                .GetMethod(nameof(ILogMessageWriter<>.Write))!,
-            typedMsg,
+                .GetMethod(nameof(IAsyncLogMessageWriter<>.WriteAsync))!,
+            typedLogMessage,
             cancellationTokenParameter);
 
         return Expression.Lambda<AsyncDispatcher>(methodCall, logMessageParameter, cancellationTokenParameter).Compile();
