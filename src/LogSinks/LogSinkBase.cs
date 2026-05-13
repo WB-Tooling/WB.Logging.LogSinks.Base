@@ -38,7 +38,7 @@ public abstract class LogSinkBase<TLogSinkBase>(ILogMessageWriter<object> defaul
     /// <param name="logMessageWriter">The log message writer to register.</param>
     /// <returns>A <see cref="IDisposable"/> that, when disposed, unregisters the log message writer.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="logMessageWriter"/> is <c>null</c>.</exception>
-    public IDisposable RegisterLogMessageWriter<TPayload>(ILogMessageWriter<TPayload> logMessageWriter)
+    public virtual IDisposable RegisterLogMessageWriter<TPayload>(ILogMessageWriter<TPayload> logMessageWriter)
         where TPayload : notnull
         => logMessageWriterPipeline.RegisterWriter(logMessageWriter);
 }

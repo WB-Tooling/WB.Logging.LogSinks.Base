@@ -40,7 +40,7 @@ public abstract class AsyncLogSinkBase<TLogSinkBase>(IAsyncLogMessageWriter<obje
     /// <param name="logMessageWriter">The log message writer to register.</param>
     /// <returns>A <see cref="IDisposable"/> that, when disposed, unregisters the log message writer.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="logMessageWriter"/> is <c>null</c>.</exception>
-    public IDisposable RegisterLogMessageWriter<TPayload>(IAsyncLogMessageWriter<TPayload> logMessageWriter)
+    public virtual IDisposable RegisterLogMessageWriter<TPayload>(IAsyncLogMessageWriter<TPayload> logMessageWriter)
         where TPayload : notnull
         => logMessageWriterPipeline.RegisterWriter(logMessageWriter);
 }
