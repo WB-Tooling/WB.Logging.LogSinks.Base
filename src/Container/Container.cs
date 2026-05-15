@@ -96,7 +96,12 @@ public sealed class Container : IContainer, IDisposable, IAsyncDisposable
 
     /// <inheritdoc/>
     public void RegisterTransient(Type serviceType, Type implType)
-        => transients[serviceType] = CompileFactory(implType ?? throw new ArgumentNullException(nameof(implType)));
+    {
+        ArgumentNullException.ThrowIfNull(serviceType, nameof(serviceType));
+        ArgumentNullException.ThrowIfNull(implType, nameof(implType));
+
+        transients[serviceType] = CompileFactory(implType);
+    }
 
     /// <inheritdoc/>
     public void RegisterTransient<TService>(Func<Container, TService> factory)
@@ -105,7 +110,12 @@ public sealed class Container : IContainer, IDisposable, IAsyncDisposable
 
     /// <inheritdoc/>
     public void RegisterTransient(Type serviceType, Func<Container, object> factory)
-        => transients[serviceType] = c => factory(c)!;
+    {
+        ArgumentNullException.ThrowIfNull(serviceType, nameof(serviceType));
+        ArgumentNullException.ThrowIfNull(factory, nameof(factory));
+
+        transients[serviceType] = c => factory(c)!;
+    }
 
     /// <inheritdoc/>
     public void RegisterSingleton<TService, TImplementation>()
@@ -114,7 +124,12 @@ public sealed class Container : IContainer, IDisposable, IAsyncDisposable
 
     /// <inheritdoc/>
     public void RegisterSingleton(Type serviceType, Type implType)
-        => singletons[serviceType] = new Lazy<object>(() => CompileFactory(implType ?? throw new ArgumentNullException(nameof(implType)))(this));
+    {
+        ArgumentNullException.ThrowIfNull(serviceType, nameof(serviceType));
+        ArgumentNullException.ThrowIfNull(implType, nameof(implType));
+
+        singletons[serviceType] = new Lazy<object>(() => CompileFactory(implType)(this));
+    }
 
     /// <inheritdoc/>
     public void RegisterSingleton<TService>(Func<Container, TService> factory)
@@ -123,7 +138,12 @@ public sealed class Container : IContainer, IDisposable, IAsyncDisposable
 
     /// <inheritdoc/>
     public void RegisterSingleton(Type serviceType, Func<Container, object> factory)
-        => singletons[serviceType] = new Lazy<object>(() => factory(this)!);
+    {
+        ArgumentNullException.ThrowIfNull(serviceType, nameof(serviceType));
+        ArgumentNullException.ThrowIfNull(factory, nameof(factory));
+
+        singletons[serviceType] = new Lazy<object>(() => factory(this)!);
+    }
 
     /// <inheritdoc/>
     public void RegisterInstance<TService>(TService instance)
@@ -133,7 +153,9 @@ public sealed class Container : IContainer, IDisposable, IAsyncDisposable
     /// <inheritdoc/>
     public void RegisterInstance(Type serviceType, object instance)
     {
+        ArgumentNullException.ThrowIfNull(serviceType, nameof(serviceType));
         ArgumentNullException.ThrowIfNull(instance, nameof(instance));
+
         registrations[serviceType] = instance.GetType();
         singletons[serviceType] = new Lazy<object>(() => instance);
     }
