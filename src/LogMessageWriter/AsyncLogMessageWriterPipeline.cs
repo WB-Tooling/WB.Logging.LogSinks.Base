@@ -8,20 +8,28 @@ namespace WB.Logging.LogSinks.Base;
 
 internal delegate ValueTask AsyncDispatcher(ILogMessage logMessage, CancellationToken cancellationToken);
 
-internal sealed class AsyncLogMessageWriterPipeline
+internal sealed class AsyncLogMessageWriterPipeline : IAsyncDisposable  
 {
     private readonly ConcurrentDictionary<Type, AsyncDispatcher> dispatchers = new();
 
-    private readonly ConcurrentDictionary<Type, object> logMessageWriters = new();
+    private readonly ConcurrentDictionary<Type, Func<object>> logMessageWriterFactories = new();
+
+    private readonly Container container = new();
 
     public IAsyncLogMessageWriter<object>? DefaultLogMessageWriter { get; set; }
 
-    public IDisposable RegisterWriter<TPayload>(IAsyncLogMessageWriter<TPayload> logMessageWriter)
-        where TPayload : notnull
-    {
-        logMessageWriters[typeof(TPayload)] = logMessageWriter;
+    public IContainer Container => container;
 
-        return new ActionDisposable(() => logMessageWriters.TryRemove(typeof(TPayload), out _));
+    public async ValueTask DisposeAsync()
+    {
+        await container.DisposeAsync().ConfigureAwait(false);
+    }
+
+    public void RegisterWriter(Type logMessageWriterType, Type payloadType)
+    {
+        container.RegisterSingleton(logMessageWriterType, (c) => container.New(logMessageWriterType));
+    
+        logMessageWriterFactories[payloadType] = () => container.Resolve(logMessageWriterType); 
     }
 
     public ValueTask WriteAsync<TPayload>(ILogMessage<TPayload> message, CancellationToken cancellationToken)
@@ -37,9 +45,9 @@ internal sealed class AsyncLogMessageWriterPipeline
 
     private AsyncDispatcher CreateDispatcher(Type payloadType)
     {
-        if (logMessageWriters.TryGetValue(payloadType, out var writerObj))
+        if (logMessageWriterFactories.TryGetValue(payloadType, out Func<object>? logMessageWriter))
         {
-            return CreateTypedDispatcher(payloadType, writerObj);
+            return CreateTypedDispatcher(payloadType, logMessageWriter());
         }
 
         if (DefaultLogMessageWriter is not null)

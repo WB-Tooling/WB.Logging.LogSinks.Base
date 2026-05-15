@@ -51,9 +51,9 @@ public sealed class TheSubmitMethod
     public void ShouldWriteLogMessageUsingRegisteredLogMessageWriter()
     {
         // Arrange
-        StringLogMessageWriter logMessageWriter = new();
         TestLogSink logSink = new();
-        logSink.RegisterLogMessageWriter(logMessageWriter);
+        logSink.RegisterLogMessageWriter<StringLogMessageWriter>();
+        StringLogMessageWriter logMessageWriter = logSink.ServiceContainer.Resolve<StringLogMessageWriter>();
         LogMessage<string> logMessage = new()
         {
             Timestamp = DateTimeOffset.UtcNow,

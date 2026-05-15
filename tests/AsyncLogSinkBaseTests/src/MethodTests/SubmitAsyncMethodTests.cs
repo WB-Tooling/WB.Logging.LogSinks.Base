@@ -42,9 +42,6 @@ internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<object>
 internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<string>
 {
     public List<ILogMessage<string>> WrittenMessages { get; } = [];
-    
-    [NotNull]
-    public TestLogSink? LogSink { get; set; }
 
     public ValueTask WriteAsync(ILogMessage<string> logMessage, CancellationToken cancellationToken)
     {
@@ -64,9 +61,9 @@ public sealed class TheSubmitMethod
     public async Task ShouldWriteLogMessagesUsingRegisteredLogMessageWriter()
     {
         // Arrange
-        StringLogMessageWriter logMessageWriter = new();
         TestLogSink logSink = new();
-        logSink.RegisterLogMessageWriter(logMessageWriter);
+        logSink.RegisterLogMessageWriter<StringLogMessageWriter>();
+        StringLogMessageWriter logMessageWriter = logSink.ServiceContainer.Resolve<StringLogMessageWriter>();
         LogMessage<string> logMessage = new()
         {
             Timestamp = DateTimeOffset.UtcNow,
