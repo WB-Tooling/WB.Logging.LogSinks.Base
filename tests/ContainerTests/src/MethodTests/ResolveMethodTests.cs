@@ -102,7 +102,7 @@ public sealed class TheResolveMethod
     {
         // arrange
         Container container = new();
-        container.Register<IService, Service>();
+        container.RegisterTransient<IService, Service>();
 
         // act
         IService firstInstance = container.Resolve<IService>();
@@ -133,8 +133,8 @@ public sealed class TheResolveMethod
     {
         // arrange
         Container container = new();
-        container.Register<IDependency, Dependency>();
-        container.Register<IService, ServiceWithDependency>();
+        container.RegisterTransient<IDependency, Dependency>();
+        container.RegisterTransient<IService, ServiceWithDependency>();
 
         // act
         IService resolvedInstance = container.Resolve<IService>();
@@ -150,7 +150,7 @@ public sealed class TheResolveMethod
     {
         // arrange
         Container container = new();
-        container.Register<IService, ServiceWithoutPublicConstructor>();
+        container.RegisterTransient<IService, ServiceWithoutPublicConstructor>();
 
         // act
         Action act = () => container.Resolve<IService>();
@@ -164,8 +164,8 @@ public sealed class TheResolveMethod
     {
         // arrange
         Container container = new();
-        container.Register<IDependency, Dependency>();
-        container.Register<IService, ServiceWithMultipleConstructors>();
+        container.RegisterTransient<IDependency, Dependency>();
+        container.RegisterTransient<IService, ServiceWithMultipleConstructors>();
 
         // act
         IService resolvedInstance = container.Resolve<IService>();

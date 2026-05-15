@@ -21,7 +21,7 @@ public sealed class TheRegisterMethod
         Container container = new();
 
         // act
-        container.Register<IService, Service>();
+        container.RegisterTransient<IService, Service>();
 
         // assert
         Type implementationType = container.Registrations[typeof(IService)];

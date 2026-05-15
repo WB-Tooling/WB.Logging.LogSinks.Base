@@ -1,141 +1,200 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace WB.Logging.LogSinks.Base;
 
-internal sealed class Container : IContainer, IDisposable, IAsyncDisposable
+/// <summary>
+/// A dependency injection container that manages service registration and resolution.
+/// Supports transient (new instance per resolution), singleton (single shared instance),
+/// and instance (pre-created object) registration patterns.
+/// </summary>
+public sealed class Container : IContainer, IDisposable, IAsyncDisposable
 {
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Private Fields                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
+
+    /// <summary>
+    /// Stores the mapping of service types to their implementation types.
+    /// This enables reflection-based factory compilation and testing visibility.
+    /// </summary>
     private readonly ConcurrentDictionary<Type, Type> registrations = new();
 
-    private readonly ConcurrentDictionary<Type, object> singletons = new();
+    /// <summary>
+    /// Stores factory delegates for transient service registrations.
+    /// Each resolution will invoke the factory to create a new instance.
+    /// </summary>
+    private readonly ConcurrentDictionary<Type, Func<Container, object>> transients = new();
 
-    private readonly ConcurrentDictionary<Type, Lazy<object>> factories = new();
+    /// <summary>
+    /// Stores lazy-initialized singleton instances for singleton service registrations.
+    /// The instance is created once and reused for all subsequent resolutions.
+    /// </summary>
+    private readonly ConcurrentDictionary<Type, Lazy<object>> singletons = new();
 
+    // ┌─────────────────────────────────────────────────────────────────────────────┐
+    // │ Internal Properties                                                         │
+    // └─────────────────────────────────────────────────────────────────────────────┘
+
+    /// <summary>
+    /// Gets a read-only view of all registered service-to-implementation type mappings.
+    /// </summary>
     internal ReadOnlyDictionary<Type, Type> Registrations => new(registrations);
 
-    internal ReadOnlyDictionary<Type, object> Singletons => new(singletons);
+    /// <summary>
+    /// Gets a read-only view of all resolved singleton instances.
+    /// </summary>
+    internal ReadOnlyDictionary<Type, object> Singletons => new(singletons.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Value));
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Methods                                                              │
     // └─────────────────────────────────────────────────────────────────────────────┘
 
+    /// <inheritdoc/>
     public void Dispose()
     {
-        foreach (object singleton in singletons.Values)
+        foreach (Lazy<object> lazy in singletons.Values)
         {
-            if (singleton is IAsyncDisposable asyncDisposable)
+            switch (lazy.Value)
             {
-                asyncDisposable.DisposeAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
-            }
-            else if (singleton is IDisposable disposable)
-            {
-                disposable.Dispose();
+                case IAsyncDisposable asyncDisposable:
+                    asyncDisposable.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                    break;
+                case IDisposable disposable:
+                    disposable.Dispose();
+                    break;
             }
         }
-
-        registrations.Clear();
-        singletons.Clear();
     }
 
+    /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
-        foreach (object singleton in singletons.Values)
+        foreach (Lazy<object> lazy in singletons.Values)
         {
-            if (singleton is IAsyncDisposable asyncDisposable)
+            switch (lazy.Value)
             {
-                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-            }
-            else if (singleton is IDisposable disposable)
-            {
-                disposable.Dispose();
+                case IAsyncDisposable asyncDisposable:
+                    await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+                    break;
+                case IDisposable disposable:
+                    disposable.Dispose();
+                    break;
             }
         }
-
-        registrations.Clear();
-        singletons.Clear();
     }
 
-    public void Register<TService, TImplementation>()
+    /// <inheritdoc/>
+    public void RegisterTransient<TService, TImplementation>()
         where TImplementation : TService
-        => registrations[typeof(TService)] = typeof(TImplementation);
+        => transients[typeof(TService)] = CompileFactory(typeof(TImplementation));
 
+    /// <inheritdoc/>
+    public void RegisterTransient(Type serviceType, Type implType)
+        => transients[serviceType] = CompileFactory(implType ?? throw new ArgumentNullException(nameof(implType)));
+
+    /// <inheritdoc/>
+    public void RegisterTransient<TService>(Func<Container, TService> factory)
+        where TService : notnull
+        => RegisterTransient(typeof(TService), c => factory(c)!);
+
+    /// <inheritdoc/>
+    public void RegisterTransient(Type serviceType, Func<Container, object> factory)
+        => transients[serviceType] = c => factory(c)!;
+
+    /// <inheritdoc/>
     public void RegisterSingleton<TService, TImplementation>()
         where TImplementation : TService
         => RegisterSingleton(typeof(TService), typeof(TImplementation));
 
-    public void RegisterSingleton(Type serviceType, Type implementationType)
-    {
-        registrations[serviceType] = implementationType;
+    /// <inheritdoc/>
+    public void RegisterSingleton(Type serviceType, Type implType)
+        => singletons[serviceType] = new Lazy<object>(() => CompileFactory(implType ?? throw new ArgumentNullException(nameof(implType)))(this));
 
-        singletons[serviceType] = Resolve(serviceType);
-    }
+    /// <inheritdoc/>
+    public void RegisterSingleton<TService>(Func<Container, TService> factory)
+        where TService : notnull
+        => RegisterSingleton(typeof(TService), c => factory(c)!);
 
-    public void RegisterFactory<TService>(Func<TService?> factory)
-        => RegisterFactory(typeof(TService), () => factory()!);
+    /// <inheritdoc/>
+    public void RegisterSingleton(Type serviceType, Func<Container, object> factory)
+        => singletons[serviceType] = new Lazy<object>(() => factory(this)!);
 
-    public void RegisterFactory(Type serviceType, Func<object> factory)
-    {
-        ArgumentNullException.ThrowIfNull(factory);
-
-        registrations[serviceType] = serviceType;
-        factories[serviceType] = new Lazy<object>(factory);
-    }
-
+    /// <inheritdoc/>
     public void RegisterInstance<TService>(TService instance)
+        where TService : notnull
+        => RegisterInstance(typeof(TService), instance);
+
+    /// <inheritdoc/>
+    public void RegisterInstance(Type serviceType, object instance)
     {
-        ArgumentNullException.ThrowIfNull(instance);
-
-        Type serviceType = typeof(TService);
-
+        ArgumentNullException.ThrowIfNull(instance, nameof(instance));
         registrations[serviceType] = instance.GetType();
-
-        singletons[serviceType] = instance!;
+        singletons[serviceType] = new Lazy<object>(() => instance);
     }
 
+    /// <inheritdoc/>
     public TService Resolve<TService>()
+        where TService : notnull
         => (TService)Resolve(typeof(TService));
 
+    /// <inheritdoc/>
     public object Resolve(Type serviceType)
     {
-        if (singletons.TryGetValue(serviceType, out var singleton))
+        ArgumentNullException.ThrowIfNull(serviceType, nameof(serviceType));
+
+        if (singletons.TryGetValue(serviceType, out var lazy))
         {
-            return singleton;
+            return lazy.Value;
         }
 
-        if (factories.TryGetValue(serviceType, out var factory))
+        if (transients.TryGetValue(serviceType, out var factory))
         {
-            return factory.Value;
+            return factory(this);
         }
 
-        Type implementationType = registrations[serviceType];
-
-        ConstructorInfo? constructorInfo = implementationType
-            .GetConstructors()
-            .OrderByDescending(c => c.GetParameters().Length)
-            .FirstOrDefault() ?? throw new InvalidOperationException($"No public constructors found for type {implementationType.FullName}.");
-
-        object[]? args = [.. constructorInfo.GetParameters().Select(p => Resolve(p.ParameterType))];
-
-        return Activator.CreateInstance(implementationType, args)!;
+        throw new InvalidOperationException($"Service not registered: {serviceType.FullName}");
     }
 
-    public object New(Type serviceType)
+    /// <inheritdoc/>
+    public TService New<TService>()
+        where TService : notnull
+        => (TService)New(typeof(TService));
+
+    /// <inheritdoc/>
+    public object New(Type implType)
     {
-        ConstructorInfo? constructorInfo = serviceType
+        ArgumentNullException.ThrowIfNull(implType, nameof(implType));
+
+        return CompileFactory(implType)(this);
+    }
+
+    // ┌─────────────────────────────────────────────────────────────────────────────┐
+    // │ Private Methods                                                             │
+    // └─────────────────────────────────────────────────────────────────────────────┘
+    private static Func<Container, object> CompileFactory(Type implType)
+    {
+        ConstructorInfo constructorInfo = implType
             .GetConstructors()
             .OrderByDescending(c => c.GetParameters().Length)
-            .FirstOrDefault() ?? throw new InvalidOperationException($"No public constructors found for type {serviceType.FullName}.");
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException($"No public constructor found for {implType.FullName}");
 
-        object[]? args = [.. constructorInfo.GetParameters().Select(p => Resolve(p.ParameterType))];
+        ParameterExpression containerParam = Expression.Parameter(typeof(Container), "c");
 
-        return Activator.CreateInstance(serviceType, args)!;
+        Expression[] args = [.. constructorInfo.GetParameters()
+            .Select(p =>
+                Expression.Convert(
+                    Expression.Call(containerParam, nameof(Resolve), new[] { p.ParameterType }),
+                    p.ParameterType))];
+
+        NewExpression newExpression = Expression.New(constructorInfo, args);
+
+        return Expression.Lambda<Func<Container, object>>(newExpression, containerParam).Compile();
     }
 }

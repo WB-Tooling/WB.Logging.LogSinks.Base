@@ -25,8 +25,8 @@ internal sealed class LogMessageWriterPipeline : IDisposable
 
     public void RegisterWriter(Type logMessageWriterType, Type payloadType)
     {
-        container.RegisterSingleton(logMessageWriterType, logMessageWriterType);
-
+        container.RegisterSingleton(logMessageWriterType, (c) => container.New(logMessageWriterType));
+    
         logMessageWriterFactories[payloadType] = () => container.Resolve(logMessageWriterType);
     }
 
