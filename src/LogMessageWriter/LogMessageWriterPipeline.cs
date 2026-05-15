@@ -6,20 +6,28 @@ namespace WB.Logging.LogSinks.Base;
 
 internal delegate void Dispatcher(ILogMessage logMessage);
 
-internal sealed class LogMessageWriterPipeline
+internal sealed class LogMessageWriterPipeline : IDisposable
 {
     private readonly ConcurrentDictionary<Type, Dispatcher> dispatchers = new();
 
-    private readonly ConcurrentDictionary<Type, object> logMessageWriters = new();
+    private readonly ConcurrentDictionary<Type, Func<object>> logMessageWriterFactories = new();
+
+    private readonly Container container = new();
 
     public ILogMessageWriter<object>? DefaultLogMessageWriter { get; set; }
 
-    public IDisposable RegisterWriter<TPayload>(ILogMessageWriter<TPayload> logMessageWriter)
-        where TPayload : notnull
-    {
-        logMessageWriters[typeof(TPayload)] = logMessageWriter;
+    public IContainer Container => container;
 
-        return new ActionDisposable(() => logMessageWriters.TryRemove(typeof(TPayload), out _));
+    public void Dispose()
+    {
+        container.Dispose();
+    }
+
+    public void RegisterWriter(Type logMessageWriterType, Type payloadType)
+    {
+        container.RegisterSingleton(logMessageWriterType, logMessageWriterType);
+
+        logMessageWriterFactories[payloadType] = () => container.Resolve(logMessageWriterType);
     }
 
     public void Write<TPayload>(ILogMessage<TPayload> message)
@@ -35,9 +43,9 @@ internal sealed class LogMessageWriterPipeline
 
     private Dispatcher CreateDispatcher(Type payloadType)
     {
-        if (logMessageWriters.TryGetValue(payloadType, out var writerObj))
+        if (logMessageWriterFactories.TryGetValue(payloadType, out Func<object>? logMessageWriter))
         {
-            return CreateTypedDispatcher(payloadType, writerObj);
+            return CreateTypedDispatcher(payloadType, logMessageWriter());
         }
 
         if (DefaultLogMessageWriter is not null)
