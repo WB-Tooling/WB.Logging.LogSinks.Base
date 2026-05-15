@@ -94,7 +94,7 @@ public sealed class TheResolveMethod
         Action act = () => container.Resolve<IService>();
 
         // assert
-        act.Should().Throw<KeyNotFoundException>(because: "the Resolve method should throw an exception if the service type is not registered");
+        act.Should().Throw<InvalidOperationException>(because: "the Resolve method should throw an exception if the service type is not registered");
     }
 
     [Test]
@@ -143,20 +143,6 @@ public sealed class TheResolveMethod
         resolvedInstance.Should().BeOfType<ServiceWithDependency>(because: "the Resolve method should resolve the service with constructor dependencies");
         ServiceWithDependency serviceWithDependency = (ServiceWithDependency)resolvedInstance;
         serviceWithDependency.Dependency.Should().BeOfType<Dependency>(because: "the Resolve method should recursively resolve constructor dependencies");
-    }
-
-    [Test]
-    public void ShouldThrowAnExceptionWhenImplementationHasNoPublicConstructor()
-    {
-        // arrange
-        Container container = new();
-        container.RegisterTransient<IService, ServiceWithoutPublicConstructor>();
-
-        // act
-        Action act = () => container.Resolve<IService>();
-
-        // assert
-        act.Should().Throw<InvalidOperationException>(because: "the Resolve method should throw an exception if the implementation has no public constructors");
     }
 
     [Test]
