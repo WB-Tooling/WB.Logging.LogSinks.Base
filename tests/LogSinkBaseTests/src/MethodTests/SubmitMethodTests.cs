@@ -41,8 +41,14 @@ internal sealed class StringLogMessageWriter : ILogMessageWriter<string>
     }
 }
 
-internal sealed class TestLogSink() : LogSinkBase<TestLogSink>(new DefaultLogMessageWriter())
+internal sealed class TestLogSink : LogSinkBase<TestLogSink>
 {
+
+    [SetsRequiredMembers]
+    public TestLogSink()
+    {
+        DefaultLogMessageWriter = new DefaultLogMessageWriter();
+    }
 }
 
 public sealed class TheSubmitMethod

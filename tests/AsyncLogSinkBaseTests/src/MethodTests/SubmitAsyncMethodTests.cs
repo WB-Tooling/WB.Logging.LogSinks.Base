@@ -28,9 +28,6 @@ internal sealed class DefaultLogMessageWriter : IAsyncLogMessageWriter<object>
 {
     public List<ILogMessage> WrittenMessages { get; } = [];
 
-    [NotNull]
-    public TestLogSink? LogSink { get; set; }
-
     public ValueTask WriteAsync(ILogMessage<object> logMessage, CancellationToken cancellationToken)
     {
         WrittenMessages.Add(logMessage);
@@ -51,8 +48,13 @@ internal sealed class StringLogMessageWriter : IAsyncLogMessageWriter<string>
     }
 }
 
-internal sealed class TestLogSink() : AsyncLogSinkBase<TestLogSink>(new DefaultLogMessageWriter())
+internal sealed class TestLogSink : AsyncLogSinkBase<TestLogSink>
 {
+    [SetsRequiredMembers]
+    public TestLogSink()
+    {
+        DefaultLogMessageWriter = new DefaultLogMessageWriter();
+    }
 }
 
 public sealed class TheSubmitMethod

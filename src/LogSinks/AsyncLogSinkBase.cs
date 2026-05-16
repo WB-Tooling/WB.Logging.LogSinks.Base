@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,12 +24,11 @@ public abstract class AsyncLogSinkBase<TLogSinkBase> : IAsyncLogSink, IAsyncDisp
     /// <summary>
     /// Initializes a new instance of the <see cref="AsyncLogSinkBase{TLogSinkBase}"/> class with the specified default log message writer.
     /// </summary>
-    /// <param name="defaultLogMessageWriter">The default log message writer to use for payload types that do not have a specific log message writer registered.</param>
-    protected AsyncLogSinkBase(IAsyncLogMessageWriter<object> defaultLogMessageWriter)
+    protected AsyncLogSinkBase()
     {
         logMessageWriterPipeline = new()
         {
-            DefaultLogMessageWriter = defaultLogMessageWriter
+            DefaultLogMessageWriter = DefaultLogMessageWriter
         };
 
         logMessageWriterPipeline.Container.RegisterInstance<IAsyncLogSink>(this);
@@ -37,6 +37,11 @@ public abstract class AsyncLogSinkBase<TLogSinkBase> : IAsyncLogSink, IAsyncDisp
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
     // └─────────────────────────────────────────────────────────────────────────────┘
+
+    /// <summary>
+    /// Gets the default <see cref="IAsyncLogMessageWriter{TPayload}"/> to use for payload types that do not have a specific log message writer registered.
+    /// </summary>
+    public required IAsyncLogMessageWriter<object> DefaultLogMessageWriter { get; init; }
 
     /// <summary>
     /// Gets the <see cref="IContainer"/> associated with this log sink.

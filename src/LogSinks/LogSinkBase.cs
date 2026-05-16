@@ -21,12 +21,11 @@ public abstract class LogSinkBase<TLogSinkBase> : ILogSink, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="LogSinkBase{TLogSinkBase}"/> class with the specified default log message writer.
     /// </summary>
-    /// <param name="defaultLogMessageWriter">The default log message writer to use for payload types that do not have a specific log message writer registered.</param>
-    protected LogSinkBase(ILogMessageWriter<object> defaultLogMessageWriter)
+    protected LogSinkBase()
     {
         logMessageWriterPipeline = new()
         {
-            DefaultLogMessageWriter = defaultLogMessageWriter
+            DefaultLogMessageWriter = DefaultLogMessageWriter
         };
 
         logMessageWriterPipeline.Container.RegisterInstance<ILogSink>(this);
@@ -35,6 +34,11 @@ public abstract class LogSinkBase<TLogSinkBase> : ILogSink, IDisposable
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Public Properties                                                           │
     // └─────────────────────────────────────────────────────────────────────────────┘
+
+    /// <summary>
+    /// Gets the default <see cref="ILogMessageWriter{TPayload}"/> to use for payload types that do not have a specific log message writer registered.
+    /// </summary>
+    public required ILogMessageWriter<object> DefaultLogMessageWriter { get; init; }
 
     /// <summary>
     /// Gets the <see cref="IContainer"/> associated with this log sink.
