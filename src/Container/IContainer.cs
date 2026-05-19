@@ -36,7 +36,7 @@ public interface IContainer
     /// <typeparam name="TService">The service type to register.</typeparam>
     /// <typeparam name="TImplementation">The implementation type that implements <typeparamref name="TService"/>.</typeparam>
     /// <param name="disposeWithContainer">Indicates whether the instance should be disposed when the container is disposed.</param>
-    public void RegisterSingleton<TService, TImplementation>(bool disposeWithContainer)
+    public void RegisterSingleton<TService, TImplementation>(bool disposeWithContainer = true)
         where TImplementation : TService
         => RegisterSingleton(typeof(TService), typeof(TImplementation), disposeWithContainer);
 

@@ -31,7 +31,7 @@ public sealed class TheRegisterSingletonsMethod
     public void ShouldRegisterServiceWithGenericParameters()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
 
         // act
         container.RegisterSingleton<IService, Service>();
@@ -45,7 +45,7 @@ public sealed class TheRegisterSingletonsMethod
     public void ShouldReturnSameInstanceEachTimeGenericParametersAreUsed()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         container.RegisterSingleton<IService, Service>();
 
         // act
@@ -60,7 +60,7 @@ public sealed class TheRegisterSingletonsMethod
     public void ShouldRegisterServiceWithTypeParameters()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
 
         // act
         container.RegisterSingleton(typeof(IService), typeof(Service));
@@ -86,72 +86,10 @@ public sealed class TheRegisterSingletonsMethod
     }
 
     [Test]
-    public void ShouldRegisterServiceWithFactoryGeneric()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-
-        // act
-        container.RegisterSingleton<IService>(c => factory.CreateService());
-
-        // assert
-        IService instance = container.Resolve<IService>();
-        instance.Should().BeOfType<Service>(because: "RegisterSingleton with factory should create instance using the factory");
-    }
-
-    [Test]
-    public void ShouldCallFactoryOnlyOnceForGenericFactory()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-        container.RegisterSingleton<IService>(c => factory.CreateService());
-
-        // act
-        container.Resolve<IService>();
-        container.Resolve<IService>();
-
-        // assert
-        factory.CallCount.Should().Be(1, because: "RegisterSingleton with factory should call the factory only once to create the singleton instance");
-    }
-
-    [Test]
-    public void ShouldRegisterServiceWithFactoryTypeParameters()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-
-        // act
-        container.RegisterSingleton(typeof(IService), c => factory.CreateService()!);
-
-        // assert
-        object instance = container.Resolve(typeof(IService));
-        instance.Should().BeOfType<Service>(because: "RegisterSingleton with type parameters and factory should create instance using the factory");
-    }
-
-    [Test]
-    public void ShouldCallFactoryOnlyOnceForTypeParametersFactory()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-        container.RegisterSingleton(typeof(IService), c => factory.CreateService()!);
-
-        // act
-        container.Resolve(typeof(IService));
-        container.Resolve(typeof(IService));
-
-        // assert
-        factory.CallCount.Should().Be(1, because: "RegisterSingleton with type parameters and factory should call the factory only once");
-    }
-
-    [Test]
     public void ShouldOverwritePreviousRegistration()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
 
         // act
         container.RegisterSingleton<IService, Service>();

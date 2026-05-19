@@ -22,7 +22,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldRegisterThePreCreatedInstanceWithGenericParameters()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service serviceInstance = new();
 
         // act
@@ -37,7 +37,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldReturnTheSameInstanceEachTimeGenericParametersAreUsed()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service serviceInstance = new();
         container.RegisterInstance<IService>(serviceInstance);
 
@@ -53,7 +53,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldRegisterThePreCreatedInstanceWithTypeParameters()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service serviceInstance = new();
 
         // act
@@ -68,7 +68,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldReturnTheSameInstanceEachTimeTypeParametersAreUsed()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service serviceInstance = new();
         container.RegisterInstance(typeof(IService), serviceInstance);
 
@@ -84,7 +84,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldThrowArgumentNullExceptionWhenNullInstanceIsProvidedGeneric()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
 
         // act
         Action act = () => container.RegisterInstance<IService>(null!);
@@ -97,7 +97,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldThrowArgumentNullExceptionWhenNullInstanceIsProvidedTypeParameters()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
 
         // act
         Action act = () => container.RegisterInstance(typeof(IService), null!);
@@ -110,7 +110,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldOverwritePreviousInstanceRegistration()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service firstInstance = new();
         Service secondInstance = new();
 
@@ -127,7 +127,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldRegisterDifferentImplementationTypes()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service service = new();
         AnotherService anotherService = new();
 
@@ -144,7 +144,7 @@ public sealed class TheRegisterInstanceMethod
     public void ShouldReturnInstanceMultipleTimesConsistently()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service serviceInstance = new();
         container.RegisterInstance<IService>(serviceInstance);
 
