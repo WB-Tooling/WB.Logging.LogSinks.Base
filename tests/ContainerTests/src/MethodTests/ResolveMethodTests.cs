@@ -59,7 +59,7 @@ public sealed class TheResolveMethod
     public void ShouldResolveTheRegisteredSingletonInstanceForTheServiceType()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         container.RegisterSingleton<IService, Service>();
 
         // act
@@ -73,7 +73,7 @@ public sealed class TheResolveMethod
     public void ShouldResolveTheRegisteredInstanceForTheServiceType()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         Service serviceInstance = new();
         container.RegisterInstance<IService>(serviceInstance);
 
@@ -101,7 +101,7 @@ public sealed class TheResolveMethod
     public void ShouldResolveTheRegisteredFactoryAndCreateANewInstanceEachTime()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         container.RegisterTransient<IService, Service>();
 
         // act
@@ -117,7 +117,7 @@ public sealed class TheResolveMethod
     public void ShouldResolveSingletonInstanceMultipleTimesAndReturnTheSameInstance()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         container.RegisterSingleton<IService, Service>();
 
         // act
@@ -132,7 +132,7 @@ public sealed class TheResolveMethod
     public void ShouldResolveServiceWithConstructorDependencies()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         container.RegisterTransient<IDependency, Dependency>();
         container.RegisterTransient<IService, ServiceWithDependency>();
 
@@ -149,7 +149,7 @@ public sealed class TheResolveMethod
     public void ShouldSelectConstructorWithMostParametersWhenMultipleConstructorsExist()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         container.RegisterTransient<IDependency, Dependency>();
         container.RegisterTransient<IService, ServiceWithMultipleConstructors>();
 

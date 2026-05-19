@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -83,12 +84,16 @@ public abstract class AsyncLogSinkBase<TLogSinkBase> : IAsyncLogSink, IAsyncDisp
             throw new ArgumentException($"The log message writer type must implement IAsyncLogMessageWriter<TPayload> for some payload type.", nameof(TAsyncLogMessageWriter));
         }
 
-        Type payloadType = logMessageWriterType.GetInterfaces()
-            .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAsyncLogMessageWriter<>))
-            .GetGenericArguments()[0];
+        IEnumerable<Type> payloadTypes = logMessageWriterType.GetInterfaces()
+            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAsyncLogMessageWriter<>))
+            .Select(i => i.GetGenericArguments()[0]);
 
-        logMessageWriterPipeline.RegisterWriter(logMessageWriterType, payloadType);
+        foreach (var payloadType in payloadTypes)
+        {
+            logMessageWriterPipeline.RegisterWriter(logMessageWriterType, payloadType);
+        }
     }
+
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
     // │ Protected Methods                                                           │

@@ -31,7 +31,7 @@ public sealed class TheRegisterTransientMethod
     public void ShouldRegisterServiceWithGenericParameters()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
 
         // act
         container.RegisterTransient<IService, Service>();
@@ -45,7 +45,7 @@ public sealed class TheRegisterTransientMethod
     public void ShouldCreateNewInstanceEachTimeGenericParametersAreUsed()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
         container.RegisterTransient<IService, Service>();
 
         // act
@@ -86,72 +86,10 @@ public sealed class TheRegisterTransientMethod
     }
 
     [Test]
-    public void ShouldRegisterServiceWithFactoryGeneric()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-
-        // act
-        container.RegisterTransient<IService>(c => factory.CreateService());
-
-        // assert
-        IService instance = container.Resolve<IService>();
-        instance.Should().BeOfType<Service>(because: "RegisterTransient with factory should create instance using the factory");
-    }
-
-    [Test]
-    public void ShouldCallFactoryEachTimeForGenericFactory()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-        container.RegisterTransient<IService>(c => factory.CreateService());
-
-        // act
-        container.Resolve<IService>();
-        container.Resolve<IService>();
-
-        // assert
-        factory.CallCount.Should().Be(2, because: "RegisterTransient with factory should call the factory each time the service is resolved");
-    }
-
-    [Test]
-    public void ShouldRegisterServiceWithFactoryTypeParameters()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-
-        // act
-        container.RegisterTransient(typeof(IService), c => factory.CreateService()!);
-
-        // assert
-        object instance = container.Resolve(typeof(IService));
-        instance.Should().BeOfType<Service>(because: "RegisterTransient with type parameters and factory should create instance using the factory");
-    }
-
-    [Test]
-    public void ShouldCallFactoryEachTimeForTypeParametersFactory()
-    {
-        // arrange
-        Container container = new();
-        ServiceFactory factory = new();
-        container.RegisterTransient(typeof(IService), c => factory.CreateService()!);
-
-        // act
-        container.Resolve(typeof(IService));
-        container.Resolve(typeof(IService));
-
-        // assert
-        factory.CallCount.Should().Be(2, because: "RegisterTransient with type parameters and factory should call the factory each time");
-    }
-
-    [Test]
     public void ShouldOverwritePreviousRegistration()
     {
         // arrange
-        Container container = new();
+        IContainer container = new Container();
 
         // act
         container.RegisterTransient<IService, Service>();

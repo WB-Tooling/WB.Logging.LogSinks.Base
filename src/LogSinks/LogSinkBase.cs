@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace WB.Logging.LogSinks.Base;
@@ -80,11 +81,14 @@ public abstract class LogSinkBase<TLogSinkBase> : ILogSink, IDisposable
             throw new ArgumentException($"The log message writer type must implement ILogMessageWriter<TPayload> for some payload type.", nameof(TLogMessageWriter));
         }
 
-        Type payloadType = logMessageWriterType.GetInterfaces()
-            .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ILogMessageWriter<>))
-            .GetGenericArguments()[0];
+        IEnumerable<Type> payloadTypes = logMessageWriterType.GetInterfaces()
+            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ILogMessageWriter<>))
+            .Select(i => i.GetGenericArguments()[0]);
 
-        logMessageWriterPipeline.RegisterWriter(logMessageWriterType, payloadType);
+        foreach (var payloadType in payloadTypes)
+        {
+            logMessageWriterPipeline.RegisterWriter(logMessageWriterType, payloadType);
+        }
     }
 
     // ┌─────────────────────────────────────────────────────────────────────────────┐
