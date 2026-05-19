@@ -18,32 +18,16 @@ public interface IContainer
     /// <typeparam name="TService">The service type to register.</typeparam>
     /// <typeparam name="TImplementation">The implementation type that implements <typeparamref name="TService"/>.</typeparam>
     public void RegisterTransient<TService, TImplementation>()
-        where TImplementation : TService;
+        where TImplementation : TService
+        => RegisterTransient(typeof(TService), typeof(TImplementation));
 
     /// <summary>
     /// Registers a transient service with its implementation type using type parameters.
     /// A new instance will be created each time the service is resolved.
     /// </summary>
     /// <param name="serviceType">The service type to register.</param>
-    /// <param name="implType">The implementation type that implements <paramref name="serviceType"/>.</param>
-    public void RegisterTransient(Type serviceType, Type implType);
-
-    /// <summary>
-    /// Registers a transient service with a factory delegate.
-    /// A new instance will be created each time the service is resolved.
-    /// </summary>
-    /// <typeparam name="TService">The service type to register.</typeparam>
-    /// <param name="factory">A factory delegate that creates instances of the service.</param>
-    public void RegisterTransient<TService>(Func<Container, TService> factory)
-        where TService : notnull;
-
-    /// <summary>
-    /// Registers a transient service with a factory delegate using type parameters.
-    /// A new instance will be created each time the service is resolved.
-    /// </summary>
-    /// <param name="serviceType">The service type to register.</param>
-    /// <param name="factory">A factory delegate that creates instances of the service.</param>
-    public void RegisterTransient(Type serviceType, Func<Container, object> factory);
+    /// <param name="implementationType">The implementation type that implements <paramref name="serviceType"/>.</param>
+    public void RegisterTransient(Type serviceType, Type implementationType);
 
     /// <summary>
     /// Registers a singleton service with its implementation type using generic parameters.
@@ -51,8 +35,10 @@ public interface IContainer
     /// </summary>
     /// <typeparam name="TService">The service type to register.</typeparam>
     /// <typeparam name="TImplementation">The implementation type that implements <typeparamref name="TService"/>.</typeparam>
-    public void RegisterSingleton<TService, TImplementation>()
-        where TImplementation : TService;
+    /// <param name="disposeWithContainer">Indicates whether the instance should be disposed when the container is disposed.</param>
+    public void RegisterSingleton<TService, TImplementation>(bool disposeWithContainer)
+        where TImplementation : TService
+        => RegisterSingleton(typeof(TService), typeof(TImplementation), disposeWithContainer);
 
     /// <summary>
     /// Registers a singleton service with its implementation type using type parameters.
@@ -60,24 +46,8 @@ public interface IContainer
     /// </summary>
     /// <param name="serviceType">The service type to register.</param>
     /// <param name="implType">The implementation type that implements <paramref name="serviceType"/>.</param>
-    public void RegisterSingleton(Type serviceType, Type implType);
-
-    /// <summary>
-    /// Registers a singleton service with a factory delegate.
-    /// A single instance will be created and reused for all resolutions.
-    /// </summary>
-    /// <typeparam name="TService">The service type to register.</typeparam>
-    /// <param name="factory">A factory delegate that creates the singleton instance.</param>
-    public void RegisterSingleton<TService>(Func<Container, TService> factory)
-        where TService : notnull;
-
-    /// <summary>
-    /// Registers a singleton service with a factory delegate using type parameters.
-    /// A single instance will be created and reused for all resolutions.
-    /// </summary>
-    /// <param name="serviceType">The service type to register.</param>
-    /// <param name="factory">A factory delegate that creates the singleton instance.</param>
-    public void RegisterSingleton(Type serviceType, Func<Container, object> factory);
+    /// <param name="disposeWithContainer">Indicates whether the instance should be disposed when the container is disposed.</param>
+    public void RegisterSingleton(Type serviceType, Type implType, bool disposeWithContainer = true);
 
     /// <summary>
     /// Registers a pre-created instance as a singleton service using generic parameters.
@@ -85,8 +55,10 @@ public interface IContainer
     /// </summary>
     /// <typeparam name="TService">The service type to register.</typeparam>
     /// <param name="instance">The instance to register as a singleton.</param>
-    public void RegisterInstance<TService>(TService instance)
-        where TService : notnull;
+    /// <param name="disposeWithContainer">Indicates whether the instance should be disposed when the container is disposed.</param>
+    public void RegisterInstance<TService>(TService instance, bool disposeWithContainer = true)
+        where TService : notnull
+        => RegisterInstance(typeof(TService), instance!, disposeWithContainer);
 
     /// <summary>
     /// Registers a pre-created instance as a singleton service using type parameters.
@@ -94,7 +66,8 @@ public interface IContainer
     /// </summary>
     /// <param name="serviceType">The service type to register.</param>
     /// <param name="instance">The instance to register as a singleton.</param>
-    public void RegisterInstance(Type serviceType, object instance);
+    /// <param name="disposeWithContainer">Indicates whether the instance should be disposed when the container is disposed.</param>
+    public void RegisterInstance(Type serviceType, object instance, bool disposeWithContainer = true);
 
     /// <summary>
     /// Resolves and returns an instance of the registered service using generic parameters.
