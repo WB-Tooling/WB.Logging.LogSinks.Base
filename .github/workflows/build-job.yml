@@ -30,7 +30,7 @@ jobs:
           echo "create-nuget-package = ${{ inputs.create-nuget-package }}"
 
       - name: 🗃️ Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
